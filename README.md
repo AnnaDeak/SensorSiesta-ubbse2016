@@ -17,3 +17,10 @@ Example Project Requirements
 ### 1. Project Management
 
 The project management board for this project is hosted [here](https://waffle.io/csabasulyok/SensorSiesta-ubbse2016).
+
+
+### 2. Architectural Document & Implementation Skeleton
+
+The documents are written in *LaTeX* and built using the [Gradle LaTeX plugin](https://github.com/csabasulyok/gradle-latex). 
+
+The tag [v0.2](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.2) contains the architecural document [here](https://github.com/csabasulyok/SensorSiesta-ubbse2016/blob/v0.2/doc/SensorSiesta-ubbse2016-Architecture.tex) and the empty skeleton of implementation.
