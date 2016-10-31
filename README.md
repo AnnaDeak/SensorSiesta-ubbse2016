@@ -8,10 +8,10 @@ The different stages of the project can be accessed through [git tags](https://g
 
 Example Project Requirements
 ----------------------------
-- Given are one or more *Raspberry Pis* with one or more sensor each;
-- I (the client) want to visually see the readings from any device and sensor *online*, from anywhere;
-- Poll intervals should be configurable on the Pi (how many times per minute each sensor sends data);
-- A new Raspberry device can connect anytime and start sending data.
+- Given are one or more *Raspberry Pis* with one or more sensor each;
+- I (the client) want to visually see the readings from any device and sensor *online*, from anywhere;
+- Poll intervals should be configurable on the Pi (how many times per minute each sensor sends data);
+- A new Raspberry device can connect anytime and start sending data.
 
 
 ### 1. Project Management
