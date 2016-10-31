@@ -1,0 +1,63 @@
+body {
+	background-color: #efebeb;
+	padding-top: 70px;
+}
+
+.label {
+	font-size: 90%;
+	font-weight: 500;
+}
+
+.table-bordered, .table-bordered>tbody>tr>td, .table-bordered>tbody>tr>th,
+	.table-bordered>tfoot>tr>td, .table-bordered>tfoot>tr>th,
+	.table-bordered>thead>tr>td, .table-bordered>thead>tr>th {
+	border: 1px solid #ccc;
+}
+
+/* Sidebar navigation */
+
+.nav-sidebar {
+	margin-right: -21px; /* 20px padding + 1px border */
+	margin-bottom: 20px;
+	margin-left: -20px;
+}
+
+.nav-sidebar>li>a {
+	padding-right: 20px;
+	padding-left: 20px;
+}
+
+.nav-sidebar>.active>a, .nav-sidebar>.active>a:hover, .nav-sidebar>.active>a:focus {
+	color: #fff;
+	background-color: #428bca;
+}
+
+
+/* When you need some space... */
+
+.spacer {
+	margin:0;
+	padding:0;
+	height:100px; 
+}
+
+
+/* Status-showing labels not available anymore in Bootstrap v4 alpha */
+
+.label-success {
+    color: #22aa22;
+}
+
+.label-warning {
+    color: #997700;
+    font-style: oblique;
+}
+
+.label-danger {
+	color: #aa2222;
+	font-style: italic;
+}
+
+.label-success, .label-warning, .label-danger {
+    font-size: 110%;
+}
