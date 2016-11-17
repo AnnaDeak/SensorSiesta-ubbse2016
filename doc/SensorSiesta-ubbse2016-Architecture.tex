@@ -2,23 +2,55 @@
 
 \usepackage{docstyle}
 
-\title{Architecture Specification for the \emph{SensorSiesta} project}
-\author{Csaba Sulyok}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{7pt}
 
 \begin{document}
 
-\maketitle
 
-\section{Scope of the document}
+\begin{tikzpicture}
 
-\section{Process topology}
+\begin{umlpackage}[x=0, y=8]{Common}
+  \begin{umlcomponent}[x=0, y=0]{Entities}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=6, y=0]{DAO Facades}
+  \end{umlcomponent}
+  \umldep{DAO Facades}{Entities}
+\end{umlpackage}
 
-\subsection{Processes \& Machines}
+\begin{umlpackage}[x=14, y=8]{Back-end}
+  \begin{umlcomponent}[x=0, y=0]{DAO}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=6, y=0]{REST Server}
+  \end{umlcomponent}
+  \umldep{REST Server}{DAO}
+\end{umlpackage}
 
-\subsection{Communication}
+\begin{umlpackage}[x=0, y=2]{RPi front-end}
+  \begin{umlcomponent}[x=0, y=0]{Sensor DSP}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=6, y=0]{Data Broadcast}
+  \end{umlcomponent}
+  \umldep[stereo=collects]{Data Broadcast}{Sensor DSP}
+  \umldep[stereo=communicates]{Data Broadcast}{DAO}
+\end{umlpackage}
 
-\section{Components}
+\begin{umlpackage}[x=14, y=0]{Web front-end}
+  \begin{umlcomponent}[x=6, y=1.5]{Controller}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=0, y=3]{View}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=0, y=0]{ViewModel}
+  \end{umlcomponent}
+  \umldep[stereo=manages]{Controller}{View}
+  \umldep[stereo=manages]{Controller}{ViewModel}
+  \umldep[stereo=communicates]{Controller}{REST Server}
+\end{umlpackage}
 
-\section{Significant decisions}
+\umldep[stereo=depends]{Back-end}{Common}
+\umldep[stereo=depends]{RPi front-end}{Common}
+
+\end{tikzpicture}
 
 \end{document}
