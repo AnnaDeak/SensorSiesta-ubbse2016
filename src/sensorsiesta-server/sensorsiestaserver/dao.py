@@ -16,6 +16,7 @@ class DbConnection(object):
     
     def disconnect(self):
         if self.nativeConn:
+            print 'Disconnecting from', self.dbFileName
             self.nativeConn.close()
             
     def execSimple(self, query):
@@ -54,9 +55,17 @@ class DAO(object):
         obj.uid = self.conn.cursor.lastrowid
         return obj
     
+    def createByValues(self, **kwargs):
+        return self.create(self.mapping.kwargsToObj(**kwargs))
+    
     def update(self, obj):
         query = 'UPDATE %s SET %s WHERE uid=%d' %(self.mapping.tableName, self.mapping.namesWithValues(obj), obj.uid)
         self.conn.execSimple(query)
+        
+    def updateByValues(self, uid, **kwargs):
+        obj = self.mapping.kwargsToObj(**kwargs)
+        obj.uid = uid
+        return self.update(obj)
     
     def delete(self, obj):
         self.deleteById(obj.uid)
@@ -68,45 +77,47 @@ class DAO(object):
 
         
 
-class TableManager(object):
+class DAOContainer(object):
     
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self, dbFileName = 'test.db'):
+        self.conn = DbConnection(dbFileName)
+        self.mappings = {}
+        self.daos = {}
     
     
-    def createTable(self, mapping, drop = False):
-        if drop:
-            self.dropTable(tableName = mapping.tableName)
-            
-        query = 'CREATE TABLE IF NOT EXISTS %s(uid INTEGER PRIMARY KEY AUTOINCREMENT, %s)' %(
-                mapping.tableName, mapping.namesWithSqlType())
+    def mappingFor(self, cls):
+        if cls not in self.mappings.keys():
+            self.mappings[cls] = EntityMapping(cls)
+        return self.mappings[cls]
+    
+    
+    def daoFor(self, cls, recreateTable = False):
+        mapping = self.mappingFor(cls)
+        cached = mapping.tableName in self.daos.keys()
         
-        self.conn.execSimple(query)
-        return DAO(conn, mapping)
-    
-    
-    def dropTable(self, obj = None, tableName = None):
-        if tableName is None:
-            if obj is not None:
-                tableName = type(obj).__name__
-            else:
-                print 'No table name to drop'
-                return
+        if recreateTable:
+            query = 'DROP TABLE IF EXISTS %s' %(mapping.tableName)
+            self.conn.execSimple(query)
         
-        query = 'DROP TABLE IF EXISTS %s' %tableName
-        self.conn.execSimple(query)
-    
-    
-    
+        if recreateTable or not cached:
+            query = 'CREATE TABLE IF NOT EXISTS %s(uid INTEGER PRIMARY KEY AUTOINCREMENT, %s)' %(
+                    mapping.tableName, mapping.namesWithSqlType())
+            self.conn.execSimple(query)
 
-conn = DbConnection()
-tm = TableManager(conn)
-mapping = EntityMapping(ExampleEntity())
+        if not cached:
+            self.daos[mapping.tableName] = DAO(self.conn, mapping)
+        
+        return self.daos[mapping.tableName]
+    
+    
+    
+'''
+daoc = DAOContainer()
 
-dao = tm.createTable(mapping, drop = True)
+dao = daoc.daoFor(ExampleEntity, recreateTable = True)
 
 dao.create(ExampleEntity())
-dao.create(ExampleEntity(intMember=84))
+dao.createByValues(intMember=84)
 dao.create(ExampleEntity(strMember='qwerty'))
 
 print dao.findById(3).__dict__
@@ -120,4 +131,5 @@ entity.strMember='updated str member'
 dao.update(entity)
 print dao.findById(1).__dict__
 
-conn.disconnect()
+daoc.conn.disconnect()
+'''

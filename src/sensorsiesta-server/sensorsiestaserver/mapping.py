@@ -70,9 +70,10 @@ class PropertyMappingContainer(object):
 
 class EntityMapping(object):
     
-    def __init__(self, obj):
-        self.objType = type(obj)
-        self.tableName = self.objType.__name__
+    def __init__(self, cls):
+        self.cls = cls
+        obj = cls()
+        self.tableName = self.cls.__name__
         
         self.props = {}
         
@@ -94,10 +95,15 @@ class EntityMapping(object):
         return ', '.join(['%s=%s' %(name, mapping.to(obj.__dict__[name])) for name, mapping in self.props.iteritems()])
 
     def tupleToObj(self, tup):
-        ret = self.objType()
+        ret = self.cls()
         ret.uid = tup[0]
         for i in range(len(self.props)):
             ret.__dict__[self.props.keys()[i]] = self.props.values()[i].fr(tup[i+1])
         return ret
     
+    def kwargsToObj(self, **kwargs):
+        ret = self.cls()
+        for propName, propValue in kwargs.iteritems():
+            ret.__dict__[propName] = propValue
+        return ret
     
