@@ -5,50 +5,47 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tikz-uml}
 
+\tikzumlset{fill package=blue!5}
+
 \begin{document}
 
 
 \begin{tikzpicture}
 
-\begin{umlpackage}[x=0, y=8]{Common}
-  \begin{umlcomponent}[x=0, y=0]{Entities}
+\begin{umlpackage}[x=0, y=11]{server}
+  \begin{umlcomponent}[x=3, y=3]{Entities}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=6, y=0]{DAO Facades}
+  \begin{umlcomponent}[x=3, y=0]{DAO}
   \end{umlcomponent}
-  \umldep{DAO Facades}{Entities}
+  \begin{umlcomponent}[x=0, y=-3]{RPyC Service}
+  \end{umlcomponent}
+  \begin{umlcomponent}[x=6, y=-3]{REST Service}
+  \end{umlcomponent}
+  \umldep[thick, stereo=manages]{DAO}{Entities}
+  \umldep[thick]{REST Service}{DAO}
+  \umldep[thick]{RPyC Service}{DAO}
 \end{umlpackage}
 
-\begin{umlpackage}[x=14, y=8]{Back-end}
-  \begin{umlcomponent}[x=0, y=0]{DAO}
+\begin{umlpackage}[x=0, y=0]{rpi-client}
+  \begin{umlcomponent}[x=0, y=3]{Data Broadcast}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=6, y=0]{REST Server}
-  \end{umlcomponent}
-  \umldep{REST Server}{DAO}
-\end{umlpackage}
-
-\begin{umlpackage}[x=0, y=2]{RPi front-end}
   \begin{umlcomponent}[x=0, y=0]{Sensor DSP}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=6, y=0]{Data Broadcast}
-  \end{umlcomponent}
-  \umldep[stereo=collects]{Data Broadcast}{Sensor DSP}
-  \umldep[stereo=communicates]{Data Broadcast}{DAO}
+  \umldep[thick, stereo=collects]{Data Broadcast}{Sensor DSP}
+  \umldep[thick, stereo=communicates]{Data Broadcast}{RPyC Service}
 \end{umlpackage}
 
-\begin{umlpackage}[x=14, y=0]{Web front-end}
-  \begin{umlcomponent}[x=6, y=1.5]{Controller}
+\begin{umlpackage}[x=6, y=0]{web-client}
+  \begin{umlcomponent}[x=0, y=3]{Controller}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=0, y=3]{View}
+  \begin{umlcomponent}[x=5, y=3]{View}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=0, y=0]{ViewModel}
+  \begin{umlcomponent}[x=5, y=0]{ViewModel}
   \end{umlcomponent}
-  \umldep[stereo=manages]{Controller}{View}
-  \umldep[stereo=manages]{Controller}{ViewModel}
-  \umldep[stereo=communicates]{Controller}{REST Server}
+  \umldep[thick, stereo=manages]{Controller}{View}
+  \umldep[thick, stereo=manages]{Controller}{ViewModel}
+  \umldep[thick, stereo=communicates]{Controller}{REST Service}
 \end{umlpackage}
-
-\umldep[stereo=depends]{Back-end}{Common}
-\umldep[stereo=depends]{RPi front-end}{Common}
 
 \end{tikzpicture}
 
