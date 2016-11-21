@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 from sqlite3 import connect
-from sensorsiestaserver.entities import ExampleEntity
 from sensorsiestaserver.mapping import EntityMapping
 
 
@@ -11,7 +10,7 @@ class DbConnection(object):
     def __init__(self, dbFileName = 'test.db'):
         self.dbFileName = dbFileName
         print 'Connecting to', self.dbFileName
-        self.nativeConn = connect(self.dbFileName)
+        self.nativeConn = connect(self.dbFileName, check_same_thread=False)
         self.cursor = self.nativeConn.cursor()
     
     def disconnect(self):
@@ -53,6 +52,7 @@ class DAO(object):
         query = 'INSERT INTO %s(%s) VALUES (%s)' %(self.mapping.tableName, self.mapping.names(), self.mapping.values(obj))
         self.conn.execSimple(query)
         obj.uid = self.conn.cursor.lastrowid
+        print 'New row ID', obj.uid
         return obj
     
     def createByValues(self, **kwargs):
@@ -74,6 +74,10 @@ class DAO(object):
         query = 'DELETE FROM %s WHERE uid=%d' %(self.mapping.tableName, uid)
         self.conn.execSimple(query)
     
+    def deleteAll(self):
+        query = 'DELETE FROM %s' %(self.mapping.tableName)
+        self.conn.execSimple(query)
+    
 
         
 
@@ -89,6 +93,15 @@ class DAOContainer(object):
         if cls not in self.mappings.keys():
             self.mappings[cls] = EntityMapping(cls)
         return self.mappings[cls]
+    
+    
+    def recreateTable(self, cls):
+        mapping = self.mappingFor(cls)
+        query = 'DROP TABLE IF EXISTS %s' %(mapping.tableName)
+        self.conn.execSimple(query)
+        query = 'CREATE TABLE IF NOT EXISTS %s(uid INTEGER PRIMARY KEY AUTOINCREMENT, %s)' %(
+                mapping.tableName, mapping.namesWithSqlType())
+        self.conn.execSimple(query)
     
     
     def daoFor(self, cls, recreateTable = False):
