@@ -3,26 +3,33 @@ from threading import Thread
 from rpyc.utils.server import ThreadedServer
 
 from sensorsiestaserver.dao import DAOContainer
-from sensorsiestaserver.service import SensorSiestaService
-from sensorsiestaserver.flaskrest import wire, expose
+from sensorsiestaserver.rpycservice import SensorSiestaService
+from sensorsiestaserver.flaskrest import FlaskRestServer
 from sensorsiestatest.entities import ExampleEntity
 from sensorsiestaserver.utils import jsonSerializerWithUri
 
 
 if __name__ == '__main__':
     
-    daoc = DAOContainer()
+    rpycPort = 8000
+    flaskPort = 5000
     
-    SensorSiestaService.daoc = daoc
-    rpycServer = ThreadedServer(SensorSiestaService, port = 8000)
+    # build dao container - establish connection to db
+    daoContainer = DAOContainer()
+    
+    # set up rpyc server
+    SensorSiestaService.daoContainer = daoContainer
+    rpycServer = ThreadedServer(SensorSiestaService, port = rpycPort)
+    # start rpyc listener on different thread
     print 'Starting remote DAO service'
     rpycThread = Thread(target = rpycServer.start)
     rpycThread.start()
-        
-    dao = daoc.daoFor(ExampleEntity, recreateTable = True)
-    dao.create(ExampleEntity())
-    dao.createByValues(intMember=84)
-    dao.create(ExampleEntity(strMember='qwerty'))
-        
-    wire('example', dao, serializer=jsonSerializerWithUri)
-    expose(threaded = False)
+
+    # set up flask server
+    flaskServer = FlaskRestServer(daoContainer = daoContainer,
+                                  port = flaskPort,
+                                  serializer = jsonSerializerWithUri)
+    flaskServer.wire(ExampleEntity)
+    # start flask server on local thread
+    flaskServer.start(threaded = False)
+    

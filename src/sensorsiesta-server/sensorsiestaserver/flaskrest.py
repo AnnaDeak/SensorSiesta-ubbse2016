@@ -1,11 +1,9 @@
 '''
-Make Python process monitorable.
-Uses flask to host a small web server on a separate thread.
-Variables can be wired to this server, and their status monitored through http.
+Expose REST calls through a small flask server.
+@author Csaba Sulyok
 '''
 
 from thread import start_new_thread
-
 from sys import stderr
 from sensorsiestaserver.utils import jsonSerializer, isPortListening
 from os.path import abspath
@@ -15,166 +13,179 @@ from flask.wrappers import Response
 from flask.helpers import url_for
 
 
-flaskApp = Flask(__name__,
-				 static_url_path='',
-				 static_folder=abspath('./static'))
-monitorState = {}
-
-
-
-def wire(namespace,
-		 dao,
-		 serializer = jsonSerializer):
+class FlaskRestServer(object):
+	'''
+	Small server which can be run on a different thread.
+	Wires REST calls to DAOs.
+	'''
 	
-	def _ok(content = {'result': True}):
-		'''
-		Build positive response with result:True by default
-		'''
-		serializer.currentUri = url_for(namespace, _external=True)
-		ret = Response(serializer._to(content),
-					   status=200,
-					   content_type=serializer.contentType)
-		serializer.currentUri = None
-		return ret
+	def __init__(self, daoContainer, port = 5000, serializer = jsonSerializer):
+		self.flaskApp = Flask(__name__,
+							  static_url_path='',
+							  static_folder=abspath('./static'))
+		self.daoContainer = daoContainer
+		self.port = port
+		self.serializer = serializer
 		
 		
-	def _abort(exceptionText):
+	def wire(self, cls, namespace = None):
 		'''
-		Create response with an error.
-		Serialize exception to be sent to caller.
+		Wire HTTP calls to a given class to a DAO.
 		'''
-		monitorState['currentError'] = exceptionText
-		abort(400)
+		
+		# retrieve dao of class
+		dao = self.daoContainer.daoFor(cls)
+		# assign default namespace if need be
+		if namespace is None:
+			clsName = cls.__name__
+			namespace = clsName[0] + clsName[1:] + 's'
+		
+		
+		def _ok(content = {'result': True}):
+			'''
+			Build positive response with result:True by default
+			'''
+			self.serializer.currentUri = url_for(namespace, _external=True)
+			ret = Response(self.serializer._to(content),
+						   status = 200,
+						   content_type = self.serializer.contentType)
+			self.serializer.currentUri = None
+			return ret
+			
+			
+		def _abort(exceptionText):
+			'''
+			Create response with an error.
+			Serialize exception to be sent to caller.
+			'''
+			self.currentError = exceptionText
+			abort(400)
+				
+			
+		def _deserializeRequestData():
+			'''
+			Takes request data (be it POST or PUT) and deserializes it using given method.
+			'''
+			if flask_request.get_data() is '':
+				return {}
+			
+			# if there is POST/PUT data, it should be serialized using expected method
+			if str(flask_request.headers['Content-Type']) != self.serializer.contentType:
+				_abort('Request Content-Type does not match expected: %s!=%s' % (
+									  flask_request.headers['Content-Type'], self.serializer.contentType))
+			try:
+				# deserialize data
+				ret = self.serializer._from(flask_request.get_data())
+			except:
+				_abort('Could not deserialize data %s using deserialization method %s' % (
+									  flask_request.get_data(), self.serializer._from.__name__))
+				
+			return ret
+		
+		
+		def handleGetAll():
+			'''
+			Fetch a variable dynamically when GET call comes in.
+			Simply return serialized version
+			'''
+			return _ok(dao.findAll())
+		
+		
+		def handleGet(uid):
+			'''
+			Handle findById.
+			'''
+			return _ok(dao.findById(uid))
+		
+		
+		def handlePost():
+			'''
+			Handle POST calls.
+			If attempted prop is a list, create new element with parameters in request data.
+			'''
+			data = _deserializeRequestData()
+			newItem = dao.createByValues(**data)
+			return _ok(newItem)
 			
 		
-	def _deserializeRequestData():
-		'''
-		Takes request data (be it POST or PUT) and deserializes it using given method.
-		'''
-		if flask_request.get_data() is '':
-			return {}
-		
-		# if there is POST/PUT data, it should be serialized using expected method
-		if str(flask_request.headers['Content-Type']) != serializer.contentType:
-			_abort('Request Content-Type does not match expected: %s!=%s' % (
-								  flask_request.headers['Content-Type'], serializer.contentType))
-		try:
-			# deserialize data
-			ret = serializer._from(flask_request.get_data())
-		except:
-			_abort('Could not deserialize data %s using deserialization method %s' % (
-								  flask_request.get_data(), serializer._from.__name__))
+		def handlePut(uid):
+			'''
+			Handle PUT calls.
+			If attempted prop is a dict or class instance, it gets updated based on request data.
+			'''
+			data = _deserializeRequestData()
+			updatedItem = dao.updateByValues(uid, **data)
+			return _ok(updatedItem)
 			
-		return ret
-	
-	
-	def handleGetAll():
-		'''
-		Fetch a variable dynamically when GET call comes in.
-		Simply return serialized version
-		'''
-		return _ok(dao.findAll())
-	
-	
-	def handleGet(uid):
-		'''
-		Handle findById.
-		'''
-		return _ok(dao.findById(uid))
-	
-	
-	def handlePost():
-		'''
-		Handle POST calls.
-		If attempted prop is a list, create new element with parameters in request data.
-		'''
-		data = _deserializeRequestData()
-		newItem = dao.createByValues(**data)
-		return _ok(newItem)
-		
-	
-	def handlePut(uid):
-		'''
-		Handle PUT calls.
-		If attempted prop is a dict or class instance, it gets updated based on request data.
-		'''
-		data = _deserializeRequestData()
-		updatedItem = dao.updateByValues(uid, **data)
-		return _ok(updatedItem)
+			
+		def handleDelete(uid):
+			'''
+			Handle DELETE calls.
+			Deletes item with given ID.
+			'''
+			dao.deleteById(uid)
+			return _ok()
 		
 		
-	def handleDelete(uid):
+		
 		'''
-		Handle DELETE calls.
-		Deletes item with given ID.
+		Add HTTP hooks.
 		'''
-		dao.deleteById(uid)
-		return _ok()
+		self.flaskApp.add_url_rule('/' + namespace,
+							  namespace,
+							  handleGetAll,
+							  methods=['GET'])
+		self.flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
+							  namespace + '_findById',
+							  handleGet,
+							  methods=['GET'])
+		self.flaskApp.add_url_rule('/' + namespace,
+							  namespace + '_create',
+							  handlePost,
+							  methods=['POST'])
+		self.flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
+							  namespace + '_update',
+							  handlePut,
+							  methods=['PUT'])
+		self.flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
+							  namespace + '_delete',
+							  handleDelete,
+							  methods=['DELETE'])
+		
+		print 'Wired: http://localhost:%d/%s' %(self.port, namespace)
+		
 	
 	
+	def start(self, threaded = True):
+		'''
+		Launch server.
+		'''
 	
-	flaskApp.add_url_rule('/' + namespace,
-						  namespace,
-						  handleGetAll,
-						  methods=['GET'])
-	flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
-						  namespace + '_findById',
-						  handleGet,
-						  methods=['GET'])
-	flaskApp.add_url_rule('/' + namespace,
-						  namespace + '_create',
-						  handlePost,
-						  methods=['POST'])
-	flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
-						  namespace + '_update',
-						  handlePut,
-						  methods=['PUT'])
-	flaskApp.add_url_rule('/' + namespace + '/<int:uid>',
-						  namespace + '_delete',
-						  handleDelete,
-						  methods=['DELETE'])
-	print 'Wired', namespace
+		def _handleBadRequest(error):
+			'''
+			Create response with an error.
+			Serialize exception to be sent to caller.
+			'''
+			e = ServerException(self.currentError)
+			stderr.write('Server Exception: %s\n' % e)
+			return Response(self.serializer._to(e),
+						    status=400,
+						    content_type=self.serializer.contentType)
+			
+		# handle 400 error
+		self.flaskApp.register_error_handler(400, _handleBadRequest)
+		
+		print 'Starting server'
+		if isPortListening(port = self.port):
+			raise ServerException('Port %d already is use' % self.port)
+		
+		if threaded:
+			# start http server on different thread so current one can go on changing the variables.
+			start_new_thread(self.flaskApp.run, ('0.0.0.0', self.port))
+		else:
+			self.flaskApp.run('0.0.0.0', self.port)
 	
 
-
-def expose(port=5000,
-		   serializer=jsonSerializer,
-		   threaded=True):
-
-	def _ok(content={'result': True}):
-		'''
-		Build positive response with result:True by default
-		'''
-		return Response(serializer._to(content),
-					    status=200,
-					    content_type=serializer.contentType)
-	
-	
-	def _handleBadRequest(error):
-		'''
-		Create response with an error.
-		Serialize exception to be sent to caller.
-		'''
-		e = ServerException(monitorState['currentError'])
-		stderr.write('Server Exception: %s\n' % e)
-		return Response(serializer._to(e),
-					    status=400,
-					    content_type=serializer.contentType)
-		
-		
-	# handle 400 error
-	flaskApp.register_error_handler(400, _handleBadRequest)
-	
-	# start http server on different thread so current one can go on changing the variables.
-	print 'Starting server'
-	if isPortListening(port=port):
-		raise ServerException('Port %d already is use' % port)
-	
-	if threaded:
-		start_new_thread(flaskApp.run, ('0.0.0.0', port))
-	else:
-		flaskApp.run('0.0.0.0', port)
-	
 
 class ServerException(Exception):
 	'''

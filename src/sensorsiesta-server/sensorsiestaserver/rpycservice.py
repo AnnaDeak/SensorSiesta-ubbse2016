@@ -5,12 +5,12 @@ from sensorsiestatest.entities import ExampleEntity
 
 class SensorSiestaService(Service):
     
-    daoc = None
+    daoContainer = None
     dao = None
     
     def on_connect(self):
         if self.dao is None:
-            self.dao = self.daoc.daoFor(ExampleEntity)
+            self.dao = self.daoContainer.daoFor(ExampleEntity)
 
     def on_disconnect(self):
         pass
