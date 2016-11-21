@@ -23,6 +23,10 @@ class FlaskRestServer(object):
 		self.flaskApp = Flask(__name__,
 							  static_url_path='',
 							  static_folder=abspath('./static'))
+		@self.flaskApp.route('/')
+		def index():
+			return self.flaskApp.send_static_file('index.html')
+		
 		self.daoContainer = daoContainer
 		self.port = port
 		self.serializer = serializer
@@ -39,6 +43,7 @@ class FlaskRestServer(object):
 		if namespace is None:
 			clsName = cls.__name__
 			namespace = clsName[0] + clsName[1:] + 's'
+			namespaceSingle = clsName[0] + clsName[1:]
 		
 		
 		def _ok(content = {'result': True}):
@@ -88,14 +93,14 @@ class FlaskRestServer(object):
 			Fetch a variable dynamically when GET call comes in.
 			Simply return serialized version
 			'''
-			return _ok(dao.findAll())
+			return _ok({namespace: dao.findAll()})
 		
 		
 		def handleGet(uid):
 			'''
 			Handle findById.
 			'''
-			return _ok(dao.findById(uid))
+			return _ok({namespaceSingle: dao.findById(uid)})
 		
 		
 		def handlePost():
@@ -105,7 +110,7 @@ class FlaskRestServer(object):
 			'''
 			data = _deserializeRequestData()
 			newItem = dao.createByValues(**data)
-			return _ok(newItem)
+			return _ok({namespaceSingle: newItem})
 			
 		
 		def handlePut(uid):
@@ -115,7 +120,7 @@ class FlaskRestServer(object):
 			'''
 			data = _deserializeRequestData()
 			updatedItem = dao.updateByValues(uid, **data)
-			return _ok(updatedItem)
+			return _ok({namespaceSingle: updatedItem})
 			
 			
 		def handleDelete(uid):

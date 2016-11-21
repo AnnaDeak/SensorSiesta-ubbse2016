@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Evolutionary Music Composition</title>
+<title>Sensor Siesta Example</title>
 
 
 <!-- If IE use the latest rendering engine -->
@@ -17,242 +17,39 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark navbar-fixed-top bg-inverse">
-        <span class="navbar-brand">Evolutionary Music Composition</span>
-    </nav>
+	<nav class="navbar navbar-dark navbar-fixed-top bg-inverse">
+		<span class="navbar-brand">Sensor Siesta Example</span>
+	</nav>
 
-    <div id="runnerView" class="container-fluid">
+	<div id="exampleView" class="container">
 
-        <div class="row">
-            <div id="menuView" class="col-lg-3 col-md-3 col-sm-8">
+		<h2>Current data</h2>
 
-                <h3>Nodes</h3>
-                <ul class="nav nav-sidebar" data-bind="foreachvalue: nodes">
-                    <li data-bind="visible: selected" class="active">
-                        <a href="#" data-bind="text: name, click: $parent.selectNode"></a>
-                    </li>
-                    <li data-bind="hidden: selected">
-                        <a href="#" data-bind="text: name, click: $parent.selectNode"></a>
-                    </li>
-                    <ul data-bind="foreachvalue: agent.instances">
-                        <li data-bind="visible: selected" class="active">
-                            <a href="#" data-bind="click: $parents[1].selectInstance">Instance <span data-bind="text: uid"></span></a>
-                        </li>
-                        <li data-bind="hidden: selected">
-                            <a href="#" data-bind="click: $parents[1].selectInstance">Instance <span data-bind="text: uid"></span></a>
-                        </li>
-                    </ul>
-                    <br/>
-                </ul>
-                <div>
-                    <button class="btn btn-primary" data-bind="click: addNode">Add Node</button>
-                </div>
-                <br />
-                
-                <h3>Configurations</h3>
-                <ul class="nav nav-sidebar" data-bind="foreachvalue: configs">
-                    <li data-bind="visible: selected" class="active">
-                        <a href="#" data-bind="text: name, click: $parent.selectConfig"></a>
-                    </li>
-                    <li data-bind="hidden: selected">
-                        <a href="#" data-bind="text: name, click: $parent.selectConfig"></a>
-                    </li>
-                </ul>
-                <div>
-                    <button class="btn btn-primary" data-bind="click: addConfig">Add Config</button>
-                </div>
-                
-                <div class="spacer">&nbsp;</div>
-                
-            </div>
+		<table class="table table-sm table-bordered table-hover" id="topmidi">
+			<thead class="thead thead-inverse">
+				<tr>
+					<th>UID</th>
+					<th>Int Member</th>
+					<th>Float Member</th>
+					<th>Date Member</th>
+					<th>String Member</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: ExampleEntitys">
+				<tr>
+					<td data-bind="text: uid"></td>
+					<td data-bind="text: intMember"></td>
+					<td data-bind="text: floatMember"></td>
+					<td data-bind="text: dateMember"></td>
+					<td data-bind="text: strMember"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-
-            <div id="mainView" class="col-lg-9 col-md-9 col-sm-18">
-
-                <div id="nodeView" data-bind="if: nodeSelected">
-                    <div data-bind="with: selectedItem">
-                        <h2>Node "<i data-bind="text: name"></i>"</h2>
-                        <table class="table table-striped">
-                            <tr>
-                                <td width="30%"><b>Name</b></td>
-                                <td><input type="text" class="form-control" placeholder="Name" data-bind="value: name, enable: !connected()"></td>
-                            </tr>
-                            <tr>
-                                <td><b>Host</b></td>
-                                <td><input type="text" class="form-control" placeholder="Host" data-bind="value: host, enable: !connected()"></td>
-                            </tr>
-                            <tr>
-                                <td><b>Port</b></td>
-                                <td><input type="text" class="form-control" placeholder="Port" data-bind="value: port, enable: !connected()"></td>
-                            </tr>
-                            <tr>
-                                <td><b>Connection status</b></td>
-                                <td>
-                                    <span class="label label-success" data-bind="visible: connected">Connected</span>
-                                    <span class="label label-danger" data-bind="hidden: connected">Disconnected</span>
-                                </td>
-                            </tr>
-                        </table>
-                        <div class="pull-xs-right">
-                            <div class="input-group">
-	                            <button class="btn btn-primary" data-bind="click: $parent.saveNode, hidden: connected">Save</button> 
-	                            <button class="btn btn-success" data-bind="click: $parent.connectToNode, hidden: connected">Connect</button> 
-	                            <button class="btn btn-success dropdown-toggle" data-bind="visible: connected" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Launch config</button> 
-	                            <span class="dropdown-menu dropdown-menu-right" data-bind="foreachvalue: $parent.configs">
-	                                <a class="dropdown-item" data-bind="click: function() { $parents[1].launchInstance(this, $parent); }, text: name" href="#"></a> 
-	                            </span>
-	                            <button class="btn btn-danger"  data-bind="click: $parent.disconnectFromNode, visible: connected">Disconnect</button> 
-                            </div>
-                        </div>
-                        
-                        <div class="spacer">&nbsp;</div>
-
-                        <div data-bind="if: connected">
-                            <h3>Agent information</h3>
-                            <table class="table table-striped">
-                                <tr>
-                                    <td><b>Machine name</b></td>
-                                    <td><span data-bind="text: agent.name"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><b>Git revision</b></td>
-                                    <td><span data-bind="text: agent.gitRevision"></span></td>
-                                </tr>
-                                <tr>
-                                    <td><b>Running instances</b></td>
-                                    <td>
-                                        <table class="table table-sm table-bordered table-hover">
-                                            <thead class="thead thead-inverse">
-                                                <tr>
-                                                    <th></th>
-                                                    <th>Name</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody data-bind="foreachvalue: agent.instances">
-                                                <tr>
-                                                    <td data-bind="text: processRunning"></td>
-                                                    <td data-bind="text: name"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="instanceView" data-bind="if: instanceSelected">
-                    <div data-bind="with: selectedItem">
-                        <h2>Instance View</h2>
-                        <table class="table table-striped">
-                            <tr>
-                                <td width="30%"><b>Name</b></td>
-                                <td><span data-bind="text: name"></span></td>
-                            </tr>
-                            <tr>
-                                <td><b>Git revision</b></td>
-                                <td><span data-bind="text: gitRevision"></span></td>
-                            </tr>
-                            <tr>
-                                <td><b>Process status</b></td>
-                                <td>
-                                    <span data-bind="visible: processRunning() && data.running()" class="label label-success">Running</span>
-                                    <span data-bind="visible: processRunning() && !data.running()" class="label label-warning">Paused</span>
-                                    <span data-bind="hidden: processRunning" class="label label-danger">Stopped</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><b>Config</b></td>
-                                <td>
-                                    <table id="configTable" class="table table-sm table-bordered">
-                                        <tbody data-bind="with: config">
-                                            <tr>
-                                                <td>Number of clusters</td>
-                                                <td data-bind="text: numClusters"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><b>Generation</b></td>
-                                <td><span data-bind="text: data.generation"></span></td>
-                            </tr>
-                            <tr>
-                                <td><b>Best MIDIs</b></td>
-                                <td>
-                                    <table class="table table-sm table-bordered table-hover" id="topmidi">
-                                        <thead class="thead thead-inverse">
-                                            <tr>
-                                                <th>Generation</th>
-                                                <th>Index</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>135</td>
-                                                <td>22</td>
-                                            </tr>
-                                            <tr>
-                                                <td>69</td>
-                                                <td>420</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15</td>
-                                                <td>282</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                        <br />
-                        <div class="pull-xs-right">
-                            <button class="btn btn-success" data-bind="click: $parent.resumeInstance, visible: processRunning() && !data.running()">Resume</button>
-                            <button class="btn btn-warning" data-bind="click: $parent.pauseInstance, visible: processRunning() && data.running()">Pause</button>
-                            <button class="btn btn-success" data-bind="click: $parent.startInstance, hidden: processRunning">Start</button>
-                            <button class="btn btn-danger" data-bind="click: $parent.stopInstance, visible: processRunning">Stop</button>
-                            <button class="btn btn-danger" data-bind="click: $parent.deleteInstance">Delete</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="configView" data-bind="if: configSelected">
-                    <div data-bind="with: selectedItem">
-
-                        <h2>Config "<i data-bind="text: name"></i>"</h2>
-                        <table class="table table-striped">
-                            <tr>
-                                <td><b>Name</b></td>
-                                <td><input type="text" class="form-control" placeholder="Name" data-bind="value: name"></td>
-                            </tr>
-                            <tr>
-                                <td><b>Population size</b></td>
-                                <td><input type="text" class="form-control" placeholder="Population Size" data-bind="value: popSize"></td>
-                            </tr>
-                        </table>
-                        <br />
-                        <div class="pull-xs-right">
-                            <button class="btn btn-primary" data-bind="click: $parent.saveConfig">Save</button>
-                            <button class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Launch on Node</button>
-                            <span class="dropdown-menu dropdown-menu-right" data-bind="foreachvalue: $parent.nodes">
-                                <a class="dropdown-item" data-bind="click: function() { $parents[1].launchInstance($parent, this); }, visible: connected, text: name" href="#"></a>
-                                <a class="dropdown-item disabled" data-bind="hidden: connected, text: name" href="#"></a>
-                            </span>
-                            <button class="btn btn-danger" data-bind="click: $parent.deleteConfig">Delete</button>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-
-    <!-- grunted JS files -->
-    <script src="./external.min.js"></script>
-    <script src="./common.js"></script>
-    <script src="./dummy.js"></script>
-    <script src="./runner.js"></script>
+	<!-- grunted JS files -->
+	<script src="./external.min.js"></script>
+	<script src="./common.js"></script>
+	<script src="./example.js"></script>
 </body>
 </html>

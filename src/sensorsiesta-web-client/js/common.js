@@ -151,13 +151,11 @@ ko.addDelete = function(obj, parent) {
 
 ko.addCreate = function(obj, uri) {
 	obj.create = function() {
-		console.log(uri);
 		ajax(uri, 'POST').done(function(result) {
 			newItem = observableify(result);
 			newItem.del = function() {
 				obj.delitem(this);
 			};
-			console.log(newItem);
 			obj.push(newItem);
 		});
 	};
@@ -201,7 +199,14 @@ function observableify(obj, parent, key) {
 		ret = {};
 		ko.addChanged(ret);
 		for (var subKey in obj) {
-			ret[subKey] = observableify(obj[subKey], ret, subKey);
+			if (subKey.endsWith('_uri')) {
+				ret[subKey] = observableify(obj[subKey], ret, subKey);
+			}
+		}
+		for (var subKey in obj) {
+			if (!subKey.endsWith('_uri')) {
+				ret[subKey] = observableify(obj[subKey], ret, subKey);
+			}
 		}
 		ko.addSave(ret);
 		ko.addDelete(ret, parent);
