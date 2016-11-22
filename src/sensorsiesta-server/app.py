@@ -19,7 +19,9 @@ if __name__ == '__main__':
     
     # set up rpyc server
     SensorSiestaService.daoContainer = daoContainer
-    rpycServer = ThreadedServer(SensorSiestaService, port = rpycPort)
+    rpycServer = ThreadedServer(SensorSiestaService,
+                                port = rpycPort,
+                                protocol_config = {"allow_all_attrs" : True})
     # start rpyc listener on different thread
     print 'Starting remote DAO service'
     rpycThread = Thread(target = rpycServer.start)
