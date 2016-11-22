@@ -92,8 +92,21 @@ ko.bindingHandlers.hidden = {
 
 
 /**
- * Add methods for evaluating whether a property has changed
- * since loaded from server.
+ * Binding to format text as date
+ */
+ko.bindingHandlers.dateText = {
+	update : function(element, valueAccessor) {
+		var value = ko.utils.unwrapObservable(valueAccessor());
+		ko.bindingHandlers.text.update(element, function() {
+			return new Date(value * 1000).toLocaleFormat('%Y-%m-%d %H:%M:%S');
+		});
+	}
+};
+
+
+/**
+ * Add methods for evaluating whether a property has changed since loaded from
+ * server.
  */
 ko.observableChanging = function(value) {
 	ret = ko.observable(value);
