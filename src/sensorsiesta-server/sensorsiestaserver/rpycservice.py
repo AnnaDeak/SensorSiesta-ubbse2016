@@ -1,6 +1,6 @@
 from rpyc import Service
 
-from sensorsiestatest.entities import ExampleEntity
+from sensorsiestacommon.entities import ExampleEntity
 
 
 class SensorSiestaService(Service):

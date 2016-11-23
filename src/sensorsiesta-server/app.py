@@ -5,8 +5,8 @@ from rpyc.utils.server import ThreadedServer
 from sensorsiestaserver.dao import DAOContainer
 from sensorsiestaserver.rpycservice import SensorSiestaService
 from sensorsiestaserver.flaskrest import FlaskRestServer
-from sensorsiestatest.entities import ExampleEntity
-from sensorsiestaserver.utils import jsonSerializerWithUri
+from sensorsiestacommon.entities import ExampleEntity
+from sensorsiestacommon.utils import jsonSerializerWithUri
 
 
 if __name__ == '__main__':

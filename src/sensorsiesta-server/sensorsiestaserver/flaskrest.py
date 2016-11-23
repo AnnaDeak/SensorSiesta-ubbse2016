@@ -5,7 +5,7 @@ Expose REST calls through a small flask server.
 
 from thread import start_new_thread
 from sys import stderr
-from sensorsiestaserver.utils import jsonSerializer, isPortListening
+from sensorsiestacommon.utils import jsonSerializer, isPortListening
 from os.path import abspath
 from flask import abort, request as flask_request
 from flask.app import Flask

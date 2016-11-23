@@ -3,6 +3,7 @@
 	<name>sensorsiesta-rpi-client</name>
 	<comment></comment>
 	<projects>
+		<project>sensorsiesta-common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

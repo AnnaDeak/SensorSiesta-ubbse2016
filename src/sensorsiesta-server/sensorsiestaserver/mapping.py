@@ -5,7 +5,7 @@ Enables pairing of properties and entities with custom converters.
 '''
 
 from datetime import datetime
-from sensorsiestaserver.utils import timeToSeconds, secondsToTime
+from sensorsiestacommon.utils import timeToSeconds, secondsToTime
 
 
 class PropertyMapping(object):
