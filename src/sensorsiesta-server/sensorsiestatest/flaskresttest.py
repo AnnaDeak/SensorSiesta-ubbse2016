@@ -2,8 +2,9 @@ import unittest
 
 from sensorsiestaserver.dao import DAOContainer
 from sensorsiestaserver.flaskrest import FlaskRestServer
-from sensorsiestatest.entities import ExampleEntity
-from sensorsiestatest.flaskrestclient import request
+from sensorsiestacommon.entities import ExampleEntity
+from sensorsiestacommon.flaskrestclient import FlaskRestClient
+from sensorsiestacommon.utils import jsonSerializer
 
 
 class TestSerializeUtils(unittest.TestCase):
@@ -12,12 +13,13 @@ class TestSerializeUtils(unittest.TestCase):
     def setUpClass(self):
         self.daoc = DAOContainer()
         self.dao = self.daoc.daoFor(ExampleEntity, recreateTable = True)
-        flaskServer = FlaskRestServer(daoContainer = self.daoc)
+        flaskServer = FlaskRestServer(daoContainer = self.daoc, serializer = jsonSerializer)
         flaskServer.wire(ExampleEntity)
         flaskServer.start()
         
         
     def setUp(self):
+        self.flaskClient = FlaskRestClient(serializer = jsonSerializer)
         self.e1 = ExampleEntity()
         self.e2 = ExampleEntity(intMember = 84)
         self.e3 = ExampleEntity(strMember = 'qwerty')
@@ -30,40 +32,40 @@ class TestSerializeUtils(unittest.TestCase):
     
     
     def testFindAll(self):
-        result = request('ExampleEntitys')
-        self.assertSame(result[0], self.e1)
-        self.assertSame(result[1], self.e2)
-        self.assertSame(result[2], self.e3)
+        result = self.flaskClient.request('ExampleEntitys')
+        self.assertSame(result['ExampleEntitys'][0], self.e1)
+        self.assertSame(result['ExampleEntitys'][1], self.e2)
+        self.assertSame(result['ExampleEntitys'][2], self.e3)
         
         
     def testFindById(self):
-        result = request('ExampleEntitys/1')
-        self.assertSame(result, self.e1)
-        result = request('ExampleEntitys/2')
-        self.assertSame(result, self.e2)
-        result = request('ExampleEntitys/3')
-        self.assertSame(result, self.e3)
+        result = self.flaskClient.request('ExampleEntitys/1')
+        self.assertSame(result['ExampleEntity'], self.e1)
+        result = self.flaskClient.request('ExampleEntitys/2')
+        self.assertSame(result['ExampleEntity'], self.e2)
+        result = self.flaskClient.request('ExampleEntitys/3')
+        self.assertSame(result['ExampleEntity'], self.e3)
     
     
     def testCreate(self):
         newE = ExampleEntity(intMember = 55)
-        request('ExampleEntitys', method = 'POST', intMember = 55)
-        result = request('ExampleEntitys/4')
-        self.assertSame(result, newE)
+        self.flaskClient.request('ExampleEntitys', method = 'POST', intMember = 55)
+        result = self.flaskClient.request('ExampleEntitys/4')
+        self.assertSame(result['ExampleEntity'], newE)
     
     
     def testDelete(self):
-        request('ExampleEntitys/2', method = 'DELETE')
-        result = request('ExampleEntitys')
-        self.assertSame(result[0], self.e1)
-        self.assertSame(result[1], self.e3)
+        self.flaskClient.request('ExampleEntitys/2', method = 'DELETE')
+        result = self.flaskClient.request('ExampleEntitys')
+        self.assertSame(result['ExampleEntitys'][0], self.e1)
+        self.assertSame(result['ExampleEntitys'][1], self.e3)
         
         
     def testUpdate(self):
         self.e1.strMember = 'updatedStrMember'
-        request('ExampleEntitys/1', method = 'PUT', strMember = 'updatedStrMember')
-        result = request('ExampleEntitys/1')
-        self.assertSame(result, self.e1)
+        self.flaskClient.request('ExampleEntitys/1', method = 'PUT', strMember = 'updatedStrMember')
+        result = self.flaskClient.request('ExampleEntitys/1')
+        self.assertSame(result['ExampleEntity'], self.e1)
         
         
     def assertSame(self, a, b):

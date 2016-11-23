@@ -12,30 +12,33 @@
 
 \begin{tikzpicture}
 
-\begin{umlpackage}[x=0, y=11]{server}
-  \begin{umlcomponent}[x=3, y=3]{Entities}
+\begin{umlpackage}[x=0, y=0]{common}
+  \begin{umlcomponent}[x=0, y=0]{Entities}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=3, y=0]{DAO}
+  \begin{umlcomponent}[x=0, y=-3]{REST Client}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=0, y=-3]{RPyC Service}
+\end{umlpackage}
+
+\begin{umlpackage}[x=6, y=0]{server}
+  \begin{umlcomponent}[x=0, y=0]{DAO}
   \end{umlcomponent}
-  \begin{umlcomponent}[x=6, y=-3]{REST Service}
+  \begin{umlcomponent}[x=0, y=-3]{REST Service}
   \end{umlcomponent}
   \umldep[thick, stereo=manages]{DAO}{Entities}
   \umldep[thick]{REST Service}{DAO}
-  \umldep[thick]{RPyC Service}{DAO}
 \end{umlpackage}
 
-\begin{umlpackage}[x=0, y=0]{rpi-client}
+\begin{umlpackage}[x=0, y=-11]{rpi-client}
   \begin{umlcomponent}[x=0, y=3]{Data Broadcast}
   \end{umlcomponent}
   \begin{umlcomponent}[x=0, y=0]{Sensor DSP}
   \end{umlcomponent}
   \umldep[thick, stereo=collects]{Data Broadcast}{Sensor DSP}
-  \umldep[thick, stereo=communicates]{Data Broadcast}{RPyC Service}
+  \umldep[thick, stereo=uses]{Data Broadcast}{REST Client}
+  \umldep[thick, stereo=communicates]{Data Broadcast}{REST Service}
 \end{umlpackage}
 
-\begin{umlpackage}[x=6, y=0]{web-client}
+\begin{umlpackage}[x=6, y=-11]{web-client}
   \begin{umlcomponent}[x=0, y=3]{Controller}
   \end{umlcomponent}
   \begin{umlcomponent}[x=5, y=3]{View}

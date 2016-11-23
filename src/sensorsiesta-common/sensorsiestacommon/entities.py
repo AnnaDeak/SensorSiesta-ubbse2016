@@ -30,3 +30,5 @@ class ExampleEntity(Entity):
         self.floatMember = floatMember
         self.dateMember = dateMember
         self.strMember = strMember
+        
+        

@@ -7,8 +7,6 @@ from datetime import datetime
 import json
 from pytz import utc
 from socket import socket, AF_INET, SOCK_STREAM
-import dateutil.parser
-from rpyc.core.netref import BaseNetref
 
 
 '''
@@ -179,14 +177,6 @@ jsonSerializerWithUri = JsonSerializerWithUris()
 
 
 '''
-RPyC utilities
-'''
-
-def isObjectRemote(obj):
-    return isinstance(obj, BaseNetref)
-
-
-'''
 Datetime utilities
 '''
 
@@ -194,18 +184,10 @@ epochDateTime = datetime(1970, 1, 1).replace(tzinfo=utc)
 defaultFormat = '%Y-%m-%d %H:%M:%S.%f'
 
 
-def assureDateTimeIsLocal(givenDateTime):
-    if isObjectRemote(givenDateTime):
-        return dateutil.parser.parse(str(givenDateTime))
-    else:
-        return givenDateTime 
-
-    
 def timeToSeconds(givenDateTime):
     '''
     Converts datetime to total number of seconds.
     '''
-    givenDateTime = assureDateTimeIsLocal(givenDateTime)
     timeDiff = givenDateTime - epochDateTime
     return int(timeDiff.total_seconds())
 

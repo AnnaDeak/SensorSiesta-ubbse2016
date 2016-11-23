@@ -5,7 +5,7 @@ Expose REST calls through a small flask server.
 
 from thread import start_new_thread
 from sys import stderr
-from sensorsiestacommon.utils import jsonSerializer, isPortListening
+from sensorsiestacommon.utils import isPortListening, jsonSerializerWithUri
 from os.path import abspath
 from flask import abort, request as flask_request
 from flask.app import Flask
@@ -19,7 +19,7 @@ class FlaskRestServer(object):
 	Wires REST calls to DAOs.
 	'''
 	
-	def __init__(self, daoContainer, port = 5000, serializer = jsonSerializer):
+	def __init__(self, daoContainer, port = 5000, serializer = jsonSerializerWithUri):
 		self.flaskApp = Flask(__name__,
 							  static_url_path='',
 							  static_folder=abspath('./static'))

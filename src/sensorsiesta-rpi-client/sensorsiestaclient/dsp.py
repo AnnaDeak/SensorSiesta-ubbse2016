@@ -5,6 +5,7 @@ Common DSP-related classes.
 from random import randint, random
 from datetime import datetime
 from pytz import utc
+from sensorsiestacommon.entities import ExampleEntity
 
 
 class ExampleDsp(object):
@@ -19,4 +20,4 @@ class ExampleDsp(object):
         intMember = randint(0, 255)
         floatMember = random()
         dateMember = datetime.now(utc)
-        return {'intMember':intMember, 'floatMember':floatMember, 'dateMember': dateMember}
+        return ExampleEntity(intMember = intMember, floatMember = floatMember, dateMember = dateMember)

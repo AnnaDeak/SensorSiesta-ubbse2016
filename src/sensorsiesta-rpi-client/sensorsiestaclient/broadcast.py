@@ -5,6 +5,8 @@ Monitors DSP periodically and publishes result.
 @author Csaba Sulyok
 '''
 from time import sleep
+from sensorsiestacommon.flaskrestclient import FlaskRestClient
+from sensorsiestacommon.async import AsyncObject
 
 
 class DataBroadcaster(object):
@@ -14,10 +16,12 @@ class DataBroadcaster(object):
     and calls remote DAO method to publish.
     '''
     
-    def __init__(self, dao, dsp, period = 1.0):
-        self.dao = dao
+    def __init__(self, dsp, serverHost = 'localhost', serverPort = 5000, period = 1.0):
         self.dsp = dsp
         self.period = period
+        
+        self.conn = FlaskRestClient(host = serverHost, port = serverPort)
+        self.connAsync = AsyncObject(self.conn)
     
     
     def run(self):
@@ -34,7 +38,9 @@ class DataBroadcaster(object):
                 
                 # broadcast to dao
                 print 'Broadcasting following data to server:', readings
-                self.dao.createByValues(**readings)
+                self.connAsync.request(urlname = '/ExampleEntitys',
+                                       method='POST',
+                                       **readings.__dict__)
                 
                 # sleep until next poll
                 sleep(self.period)
