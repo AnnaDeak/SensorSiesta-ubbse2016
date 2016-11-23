@@ -36,7 +36,8 @@ The tag [v0.2](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.2) 
 
 - `doc` - TeX diagrams for architecure & design on Wiki;
 - `src` - source folders
-  - `sensorsiesta-server` - main server package; contains sqlite DAOs and services for both RPyC and REST;
+  - `sensorsiesta-common` - common classes for server and Raspberry Pi client: entities and REST client;
+  - `sensorsiesta-server` - main server package; contains sqlite DAOs and REST service endpoint;
   - `sensorsiesta-rpi-client` - Raspberry Pi client package; publishes sensor data to server;
   - `sensorsiesta-web-client` - web client; built by Grunt and deployed into static folder of server; reads data through REST and displays it.
 
