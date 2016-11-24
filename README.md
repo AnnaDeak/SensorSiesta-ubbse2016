@@ -34,12 +34,12 @@ The UML diagrams are written in *LaTeX* using the [TikzUML](http://perso.ensta-p
 
 The tag [v0.2](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.2) contains the empty skeleton of implementation. The associated architecture can be found on the wiki [here](https://github.com/csabasulyok/SensorSiesta-ubbse2016/wiki/Architecture). The proposed folder structure is the following:
 
-- `doc` - TeX diagrams for architecure & design on Wiki;
-- `src` - source folders
-  - `sensorsiesta-common` - common classes for server and Raspberry Pi client: entities and REST client;
-  - `sensorsiesta-server` - main server package; contains sqlite DAOs and REST service endpoint;
-  - `sensorsiesta-rpi-client` - Raspberry Pi client package; publishes sensor data to server;
-  - `sensorsiesta-web-client` - web client; built by Grunt and deployed into static folder of server; reads data through REST and displays it.
+- [`doc`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/doc) - TeX diagrams for architecure & design on Wiki;
+- [`src`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src) - source folders
+  - [`sensorsiesta-common`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/sensorsiesta-common) - common classes for server and Raspberry Pi client: entities and REST client;
+  - [`sensorsiesta-server`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/sensorsiesta-server) - main server package; contains sqlite DAOs and REST service endpoint;
+  - [`sensorsiesta-rpi-client`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/sensorsiesta-rpi-client) - Raspberry Pi client package; publishes sensor data to server;
+  - [`sensorsiesta-web-client`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/sensorsiesta-web-client) - web client; built by Grunt and deployed into static folder of server; reads data through REST and displays it.
 
 
 ### 4. Design & Implementation
