@@ -30,4 +30,12 @@ class ExampleEntity(Model):
         self.dateMember = dateMember
         self.strMember = strMember
         
-        
+    
+    def __repr__(self):
+        if self.uid is not None:
+            return 'ExampleEntity[uid=%d, intMember=%d, floatMember=%f, dateMember=%s, strMember=%s]' %(
+                self.uid, self.intMember, self.floatMember, self.dateMember, self.strMember)
+        else:
+            return 'ExampleEntity[uid=none, intMember=%d, floatMember=%f, dateMember=%s, strMember=%s]' %(
+                self.intMember, self.floatMember, self.dateMember, self.strMember)
+            

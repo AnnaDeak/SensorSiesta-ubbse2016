@@ -117,6 +117,7 @@ class FlaskRestServer(object):
 			newItem = cls(**data)
 			dbsession.add(newItem)
 			dbsession.commit()
+			dbsession.refresh(newItem)
 			return _ok({namespaceSingle: newItem})
 			
 		
@@ -126,9 +127,9 @@ class FlaskRestServer(object):
 			If attempted prop is a dict or class instance, it gets updated based on request data.
 			'''
 			data = _deserializeRequestData()
-			item = cls.query.get(uid)
-			item.__dict__.update(**data)
+			dbsession.query(cls).filter_by(uid=uid).update(data)
 			dbsession.commit()
+			item = cls.query.get(uid)
 			return _ok({namespaceSingle: item})
 			
 			
