@@ -7,6 +7,8 @@ from datetime import datetime
 import json
 from pytz import utc
 from socket import socket, AF_INET, SOCK_STREAM
+from sqlalchemy.sql.type_api import TypeDecorator
+from sqlalchemy.sql.sqltypes import DateTime
 
 
 '''
@@ -33,13 +35,13 @@ class JsonSerializer(object):
             for idx, value in enumerate(ret):
                 ret[idx] = self.toDict(value, preserveClassData)
         elif isinstance(obj, dict):
-            ret = obj.copy()
+            ret = { key: value for key, value in obj.iteritems() if not key.startswith('_') }
             # recurse through dict members to dictify children
             for name, value in ret.iteritems():
                 ret[name] = self.toDict(value, preserveClassData)
         elif hasattr(obj, '__dict__'):
             # if class instance, save class name in dict
-            ret = obj.__dict__.copy()
+            ret = { key: value for key, value in obj.__dict__.iteritems() if not key.startswith('_') }
             # recurse through dict members to dictify children which are class instances
             for name, value in ret.iteritems():
                 ret[name] = self.toDict(value, preserveClassData)
@@ -183,6 +185,18 @@ Datetime utilities
 epochDateTime = datetime(1970, 1, 1).replace(tzinfo=utc)
 defaultFormat = '%Y-%m-%d %H:%M:%S.%f'
 
+
+class TimeZoneAwareDateTime(TypeDecorator):
+    '''
+    Results returned as aware datetimes, not naive ones.
+    '''
+
+    impl = DateTime
+
+    def process_result_value(self, value, dialect):
+        return value.replace(tzinfo=utc)
+    
+    
 
 def timeToSeconds(givenDateTime):
     '''

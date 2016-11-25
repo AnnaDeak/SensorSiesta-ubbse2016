@@ -11,6 +11,10 @@ from flask import abort, request as flask_request
 from flask.app import Flask
 from flask.wrappers import Response
 from flask.helpers import url_for
+from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
+
+
+dbsession = sqlAlchemyFlask.session
 
 
 class FlaskRestServer(object):
@@ -19,15 +23,18 @@ class FlaskRestServer(object):
 	Wires REST calls to DAOs.
 	'''
 	
-	def __init__(self, daoContainer, port = 5000, serializer = jsonSerializerWithUri):
+	def __init__(self, port = 5000, serializer = jsonSerializerWithUri):
 		self.flaskApp = Flask(__name__,
 							  static_url_path='',
 							  static_folder=abspath('./static'))
+		self.flaskApp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+		self.flaskApp.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+		self.flaskApp.config['SQLALCHEMY_ECHO'] = True
+		
 		@self.flaskApp.route('/')
 		def index():
 			return self.flaskApp.send_static_file('index.html')
 		
-		self.daoContainer = daoContainer
 		self.port = port
 		self.serializer = serializer
 		
@@ -37,8 +44,6 @@ class FlaskRestServer(object):
 		Wire HTTP calls to a given class to a DAO.
 		'''
 		
-		# retrieve dao of class
-		dao = self.daoContainer.daoFor(cls)
 		# assign default namespace if need be
 		if namespace is None:
 			clsName = cls.__name__
@@ -93,14 +98,14 @@ class FlaskRestServer(object):
 			Fetch a variable dynamically when GET call comes in.
 			Simply return serialized version
 			'''
-			return _ok({namespace: dao.findAll()})
+			return _ok({namespace: cls.query.all()})
 		
 		
 		def handleGet(uid):
 			'''
 			Handle findById.
 			'''
-			return _ok({namespaceSingle: dao.findById(uid)})
+			return _ok({namespaceSingle: cls.query.get(uid)})
 		
 		
 		def handlePost():
@@ -109,7 +114,9 @@ class FlaskRestServer(object):
 			If attempted prop is a list, create new element with parameters in request data.
 			'''
 			data = _deserializeRequestData()
-			newItem = dao.createByValues(**data)
+			newItem = cls(**data)
+			dbsession.add(newItem)
+			dbsession.commit()
 			return _ok({namespaceSingle: newItem})
 			
 		
@@ -119,8 +126,10 @@ class FlaskRestServer(object):
 			If attempted prop is a dict or class instance, it gets updated based on request data.
 			'''
 			data = _deserializeRequestData()
-			updatedItem = dao.updateByValues(uid, **data)
-			return _ok({namespaceSingle: updatedItem})
+			item = cls.query.get(uid)
+			item.__dict__.update(**data)
+			dbsession.commit()
+			return _ok({namespaceSingle: item})
 			
 			
 		def handleDelete(uid):
@@ -128,7 +137,8 @@ class FlaskRestServer(object):
 			Handle DELETE calls.
 			Deletes item with given ID.
 			'''
-			dao.deleteById(uid)
+			dbsession.delete(cls.query.get(uid))
+			dbsession.commit()
 			return _ok()
 		
 		
