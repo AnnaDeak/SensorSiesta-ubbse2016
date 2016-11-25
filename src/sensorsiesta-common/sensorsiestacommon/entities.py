@@ -6,11 +6,12 @@ Entities associated with sensorsiesta project.
 from datetime import datetime
 
 from pytz import utc
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Float, String
 
 from sensorsiestacommon.flasksqlalchemy import Model
 from sensorsiestacommon.utils import TimeZoneAwareDateTime
+from sqlalchemy.orm import relationship
 
 
 class ExampleEntity(Model):
@@ -22,6 +23,7 @@ class ExampleEntity(Model):
     floatMember = Column(Float)
     dateMember = Column(TimeZoneAwareDateTime)
     strMember = Column(String)
+    inners = relationship('ExampleInnerEntity', backref='exampleEntity', lazy='dynamic')
     
     def __init__(self, uid = None, intMember = 42, floatMember = 12.34, dateMember = datetime.now(utc), strMember = 'abc'):
         self.uid = uid
@@ -39,3 +41,23 @@ class ExampleEntity(Model):
             return 'ExampleEntity[uid=none, intMember=%d, floatMember=%f, dateMember=%s, strMember=%s]' %(
                 self.intMember, self.floatMember, self.dateMember, self.strMember)
             
+            
+            
+class ExampleInnerEntity(Model):
+    uid = Column(Integer, primary_key = True)
+    strMember = Column(String)
+    parentUid = Column(Integer, ForeignKey(ExampleEntity.uid))
+    
+    
+    def __init__(self, uid = None, strMember = 'abc'):
+        self.uid = uid
+        self.strMember = strMember
+        
+    
+    def __repr__(self):
+        if self.uid is not None:
+            return 'ExampleInnerEntity[uid=%d, strMember=%s]' %(
+                self.uid, self.strMember)
+        else:
+            return 'ExampleInnerEntity[uid=none, strMember=%s]' %(
+                self.strMember)

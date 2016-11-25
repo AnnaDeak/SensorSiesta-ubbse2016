@@ -1,5 +1,5 @@
 from sensorsiestaserver.flaskrest import FlaskRestServer
-from sensorsiestacommon.entities import ExampleEntity
+from sensorsiestacommon.entities import ExampleEntity, ExampleInnerEntity
 from sensorsiestacommon.utils import jsonSerializerWithUri
 from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
 
@@ -13,6 +13,7 @@ if __name__ == '__main__':
                                   port = port,
                                   serializer = jsonSerializerWithUri)
     flaskServer.wire(ExampleEntity)
+    flaskServer.wire(ExampleInnerEntity)
     
     # set up flask-sqlalchemy & create tables
     sqlAlchemyFlask.setApp(flaskServer.flaskApp)
