@@ -23,11 +23,11 @@ class FlaskRestServer(object):
 	Wires REST calls to DAOs.
 	'''
 	
-	def __init__(self, port = 5000, serializer = jsonSerializerWithUri):
+	def __init__(self, dbUri = 'sqlite:///:memory:', port = 5000, serializer = jsonSerializerWithUri):
 		self.flaskApp = Flask(__name__,
 							  static_url_path='',
 							  static_folder=abspath('./static'))
-		self.flaskApp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+		self.flaskApp.config['SQLALCHEMY_DATABASE_URI'] = dbUri
 		self.flaskApp.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 		self.flaskApp.config['SQLALCHEMY_ECHO'] = True
 		

@@ -1,21 +1,20 @@
 import unittest
 
-from sensorsiestaserver.dao import DAOContainer
 from sensorsiestaserver.flaskrest import FlaskRestServer
 from sensorsiestacommon.entities import ExampleEntity
 from sensorsiestacommon.flaskrestclient import FlaskRestClient
 from sensorsiestacommon.utils import jsonSerializer
+from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
 
 
 class TestSerializeUtils(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.daoc = DAOContainer()
-        self.dao = self.daoc.daoFor(ExampleEntity, recreateTable = True)
-        flaskServer = FlaskRestServer(daoContainer = self.daoc, serializer = jsonSerializer)
+        flaskServer = FlaskRestServer(serializer = jsonSerializer)
         flaskServer.wire(ExampleEntity)
         flaskServer.start()
+        sqlAlchemyFlask.setApp(flaskServer.flaskApp)
         
         
     def setUp(self):
@@ -24,10 +23,13 @@ class TestSerializeUtils(unittest.TestCase):
         self.e2 = ExampleEntity(intMember = 84)
         self.e3 = ExampleEntity(strMember = 'qwerty')
         
-        self.daoc.recreateTable(ExampleEntity)
-        self.dao.create(self.e1)
-        self.dao.create(self.e2)
-        self.dao.create(self.e3)
+        sqlAlchemyFlask.drop_all()
+        sqlAlchemyFlask.create_all()
+        session = sqlAlchemyFlask.session
+        session.add(self.e1)
+        session.add(self.e2)
+        session.add(self.e3)
+        session.commit()
         
     
     
@@ -69,6 +71,7 @@ class TestSerializeUtils(unittest.TestCase):
         
         
     def assertSame(self, a, b):
+        self.assertIsInstance(a, ExampleEntity)
         self.assertEquals(a.intMember, b.intMember)
         self.assertEquals(a.floatMember, b.floatMember)
         #self.assertEquals(a.dateMember, b.dateMember)

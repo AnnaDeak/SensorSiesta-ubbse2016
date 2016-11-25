@@ -9,7 +9,8 @@ if __name__ == '__main__':
     port = 5000
     
     # set up flask server
-    flaskServer = FlaskRestServer(port = port,
+    flaskServer = FlaskRestServer(dbUri = 'sqlite:///test.db',
+                                  port = port,
                                   serializer = jsonSerializerWithUri)
     flaskServer.wire(ExampleEntity)
     

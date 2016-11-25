@@ -205,8 +205,10 @@ function observableify(obj, parent, key) {
 		for (var i = 0; i < obj.length; i++) {
 		    ret.push(observableify(obj[i], ret, i));
 		}
-		arrayUri = parent[key + '_uri']();
-		ko.addCreate(ret, arrayUri);
+		if (key + '_uri' in parent) {
+			arrayUri = parent[key + '_uri']();
+			ko.addCreate(ret, arrayUri);
+		}
 	} else if (obj instanceof Object) {
 		// objects
 		ret = {};
@@ -216,7 +218,7 @@ function observableify(obj, parent, key) {
 				ret[subKey] = observableify(obj[subKey], ret, subKey);
 			}
 		}
-		for (var subKey in obj) {
+		for (subKey in obj) {
 			if (!subKey.endsWith('_uri')) {
 				ret[subKey] = observableify(obj[subKey], ret, subKey);
 			}
