@@ -157,7 +157,8 @@ class JsonSerializerWithUris(JsonSerializer):
         '''
         objDict = self.toDict(obj, preserveClassData = False)
         if self.currentUri != None:
-            self._decorateWithUris(objDict, self.currentUri)
+            for _, value in objDict.iteritems():
+                self._decorateWithUris(value, self.currentUri)
         return json.dumps(objDict)
     
     

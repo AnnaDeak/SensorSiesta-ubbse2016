@@ -55,11 +55,9 @@ class FlaskRestServer(object):
 			'''
 			Build positive response with result:True by default
 			'''
-			self.serializer.currentUri = url_for(namespace, _external=True)
 			ret = Response(self.serializer._to(content),
 						   status = 200,
 						   content_type = self.serializer.contentType)
-			self.serializer.currentUri = None
 			return ret
 			
 			
@@ -98,14 +96,20 @@ class FlaskRestServer(object):
 			Fetch a variable dynamically when GET call comes in.
 			Simply return serialized version
 			'''
-			return _ok({namespace: cls.query.all()})
+			self.serializer.currentUri = url_for(namespace, _external=True)
+			ret = _ok({namespace: cls.query.all()})
+			self.serializer.currentUri = None
+			return ret
 		
 		
 		def handleGet(uid):
 			'''
 			Handle findById.
 			'''
-			return _ok({namespaceSingle: cls.query.get(uid)})
+			self.serializer.currentUri = url_for(namespace + '_findById', uid = uid, _external=True)
+			ret = _ok({namespaceSingle: cls.query.get(uid)})
+			self.serializer.currentUri = None
+			return ret
 		
 		
 		def handlePost():
@@ -118,7 +122,11 @@ class FlaskRestServer(object):
 			dbsession.add(newItem)
 			dbsession.commit()
 			dbsession.refresh(newItem)
-			return _ok({namespaceSingle: newItem})
+			
+			self.serializer.currentUri = url_for(namespace + '_findById', uid = newItem.uid, _external=True)
+			ret = _ok({namespaceSingle: newItem})
+			self.serializer.currentUri = None
+			return ret
 			
 		
 		def handlePut(uid):
@@ -130,7 +138,11 @@ class FlaskRestServer(object):
 			dbsession.query(cls).filter_by(uid=uid).update(data)
 			dbsession.commit()
 			item = cls.query.get(uid)
-			return _ok({namespaceSingle: item})
+		
+			self.serializer.currentUri = url_for(namespace + '_findById', uid = item.uid, _external=True)
+			ret = _ok({namespaceSingle: item})
+			self.serializer.currentUri = None
+			return ret
 			
 			
 		def handleDelete(uid):
