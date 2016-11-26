@@ -14,6 +14,10 @@ from sensorsiestacommon.utils import TimeZoneAwareDateTime
 from sqlalchemy.orm import relationship
 
 
+'''
+Example entities
+'''
+
 class ExampleEntity(Model):
     '''
     Example entity to be used in tests.
@@ -61,3 +65,59 @@ class ExampleInnerEntity(Model):
         else:
             return 'ExampleInnerEntity[uid=none, strMember=%s]' %(
                 self.strMember)
+
+
+
+'''
+Productive entities
+'''
+            
+class RPi(Model):
+    uid = Column(Integer, primary_key = True)
+    host = Column(String)
+    sensors = relationship('Sensor', backref='rpi', lazy='dynamic')
+    
+    def __init__(self, uid = None, host = None):
+        self.uid = uid
+        self.host = host
+
+
+
+class SensorType(Model):
+    uid = Column(Integer, primary_key = True)
+    sensors = relationship('Sensor', backref='sensorType', lazy='dynamic')
+    name = Column(String)
+    minValue = Column(Float)
+    maxValue = Column(Float)
+    
+    def __init__(self, uid = None, name = None, minValue = 0.0, maxValue = 1.0):
+        self.uid = uid
+        self.name = name
+        self.minValue = minValue
+        self.maxValue = maxValue
+        
+        
+    
+class Sensor(Model):
+    uid = Column(Integer, primary_key = True)
+    rpiUid = Column(Integer, ForeignKey(RPi.uid))
+    sensorTypeUid = Column(Integer, ForeignKey(SensorType.uid))
+    readings = relationship('SensorReading', backref='sensor', lazy='dynamic')
+    
+    def __init__(self, uid = None):
+        self.uid = uid
+
+
+
+class SensorReading(Model):
+    uid = Column(Integer, primary_key = True)
+    sensorUid = Column(Integer, ForeignKey(Sensor.uid))
+    timeOfReading = Column(TimeZoneAwareDateTime)
+    value = Column(Float)
+    
+    def __init__(self, uid = None, timeOfReading = datetime.now(utc), value = 0.0):
+        self.uid = uid
+        self.timeOfReading = timeOfReading
+        self.value = value
+        
+        
