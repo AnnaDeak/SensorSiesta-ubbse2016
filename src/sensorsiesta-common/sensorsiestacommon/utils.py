@@ -155,7 +155,7 @@ class JsonSerializerWithUris(JsonSerializer):
         Serialize to JSON, but before serializing converted dict,
         add URIs to each field.
         '''
-        objDict = self.toDict(obj, preserveClassData = False)
+        objDict = self.toDict(obj, preserveClassData = True)
         if self.currentUri != None:
             for _, value in objDict.iteritems():
                 self._decorateWithUris(value, self.currentUri)
@@ -168,7 +168,7 @@ class JsonSerializerWithUris(JsonSerializer):
         '''
         objDict = json.loads(jsonStr)
         self._removeUris(objDict)
-        return self.fromDict(objDict, checkForClassData = False)
+        return self.fromDict(objDict, checkForClassData = True)
     
     
 '''

@@ -7,6 +7,7 @@ Monitors DSP periodically and publishes result.
 from time import sleep
 from sensorsiestacommon.flaskrestclient import FlaskRestClient
 from sensorsiestacommon.async import AsyncObject
+import socket
 
 
 class DataBroadcaster(object):
@@ -22,8 +23,29 @@ class DataBroadcaster(object):
         
         self.conn = FlaskRestClient(host = serverHost, port = serverPort)
         self.connAsync = AsyncObject(self.conn)
+        self.acquireRPi()
+        
     
     
+    def acquireRPi(self):
+        self.host = socket.gethostname()
+        
+        print 'Check if current host registered:', self.host
+        response = self.conn.request(urlname = '/RPis?host=%s' %(self.host))
+        
+        if len(response['RPis']) > 0:
+            self.rpi = response['RPis'][0]
+            print 'Found on server, uid = %d' %(self.rpi.uid)
+        else:
+            print 'Not found on server, creating'
+            response = self.conn.request(urlname = '/RPis',
+                                    method = 'POST',
+                                    host = self.host)
+            self.rpi = response['RPi']
+            print 'Assigned uid = %d' %(self.rpi.uid)
+            
+            
+        
     def run(self):
         '''
         Run broadcaster indefinitely until signalled to stop.
