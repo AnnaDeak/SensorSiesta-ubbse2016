@@ -3,15 +3,19 @@ Expose REST calls through a small flask server.
 @author Csaba Sulyok
 '''
 
-from thread import start_new_thread
-from sys import stderr
-from sensorsiestacommon.utils import isPortListening, jsonSerializerWithUri
 from os.path import abspath
+from sys import stderr
+from thread import start_new_thread
+
 from flask import abort, request as flask_request
 from flask.app import Flask
-from flask.wrappers import Response
 from flask.helpers import url_for
+from flask.wrappers import Response
+from sqlalchemy.orm.attributes import QueryableAttribute
+from sqlalchemy.orm.relationships import RelationshipProperty
+
 from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
+from sensorsiestacommon.utils import isPortListening, jsonSerializerWithUri
 
 
 dbsession = sqlAlchemyFlask.session
@@ -37,6 +41,7 @@ class FlaskRestServer(object):
 		
 		self.port = port
 		self.serializer = serializer
+		self.namespaces = {}
 		
 		
 	def wire(self, cls, namespace = None):
@@ -48,8 +53,15 @@ class FlaskRestServer(object):
 		if namespace is None:
 			clsName = cls.__name__
 			namespace = clsName[0] + clsName[1:] + 's'
-			namespaceSingle = clsName[0] + clsName[1:]
 		
+		namespaceSingle = namespace[:-1]
+		
+		self.namespaces[cls] = {
+			'cls' : cls,
+			'namespace' : namespace,
+			'namespaceSingle' : namespaceSingle,
+			'innerNamespaces' : {}
+		}
 		
 		def _ok(content = {'result': True}):
 			'''
@@ -112,6 +124,20 @@ class FlaskRestServer(object):
 			return ret
 		
 		
+		def handleGetInner(uid, propName):
+			'''
+			Handle finding of attributes mapped with one-to-many.
+			'''
+			innerNamespace = self.namespaces[cls]['innerNamespaces'][propName]
+			item = cls.query.get(uid)
+			innerItems = getattr(item, propName).all()
+			
+			self.serializer.currentUri = url_for(innerNamespace['namespace'], _external=True)
+			ret = _ok({innerNamespace['namespace']: innerItems})
+			self.serializer.currentUri = None
+			return ret
+		
+		
 		def handlePost():
 			'''
 			Handle POST calls.
@@ -167,6 +193,10 @@ class FlaskRestServer(object):
 							  namespace + '_findById',
 							  handleGet,
 							  methods=['GET'])
+		self.flaskApp.add_url_rule('/' + namespace + '/<int:uid>/<string:propName>',
+							  namespace + '_findInner',
+							  handleGetInner,
+							  methods=['GET'])
 		self.flaskApp.add_url_rule('/' + namespace,
 							  namespace + '_create',
 							  handlePost,
@@ -184,6 +214,14 @@ class FlaskRestServer(object):
 		
 	
 	
+	def wireOneToMany(self, cls, innerCls, propName):
+		'''
+		Note that there is a one-to-many relationship between cls and innerClass
+		that can be accessed in cls through propName.
+		'''
+		self.namespaces[cls]['innerNamespaces'][propName] = self.namespaces[innerCls]
+		
+		
 	def start(self, threaded = True):
 		'''
 		Launch server.

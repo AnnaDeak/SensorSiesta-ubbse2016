@@ -12,8 +12,9 @@ if __name__ == '__main__':
     flaskServer = FlaskRestServer(dbUri = 'sqlite:///test.db',
                                   port = port,
                                   serializer = jsonSerializerWithUri)
-    flaskServer.wire(ExampleEntity)
     flaskServer.wire(ExampleInnerEntity)
+    flaskServer.wire(ExampleEntity)
+    flaskServer.wireOneToMany(ExampleEntity, ExampleInnerEntity, 'inners')
     
     # set up flask-sqlalchemy & create tables
     sqlAlchemyFlask.setApp(flaskServer.flaskApp)
