@@ -74,7 +74,7 @@ Productive entities
             
 class RPi(Model):
     uid = Column(Integer, primary_key = True)
-    host = Column(String)
+    host = Column(String, unique = True)
     sensors = relationship('Sensor', backref='rpi', lazy='dynamic')
     
     def __init__(self, uid = None, host = None):
@@ -86,7 +86,7 @@ class RPi(Model):
 class SensorType(Model):
     uid = Column(Integer, primary_key = True)
     sensors = relationship('Sensor', backref='sensorType', lazy='dynamic')
-    name = Column(String)
+    name = Column(String, unique = True)
     minValue = Column(Float)
     maxValue = Column(Float)
     
@@ -104,8 +104,10 @@ class Sensor(Model):
     sensorTypeUid = Column(Integer, ForeignKey(SensorType.uid))
     readings = relationship('SensorReading', backref='sensor', lazy='dynamic')
     
-    def __init__(self, uid = None):
+    def __init__(self, uid = None, rpiUid = None, sensorTypeUid = None):
         self.uid = uid
+        self.rpiUid = rpiUid
+        self.sensorTypeUid = sensorTypeUid
 
 
 
@@ -115,8 +117,9 @@ class SensorReading(Model):
     timeOfReading = Column(TimeZoneAwareDateTime)
     value = Column(Float)
     
-    def __init__(self, uid = None, timeOfReading = datetime.now(utc), value = 0.0):
+    def __init__(self, uid = None, sensorUid = None, timeOfReading = datetime.now(utc), value = 0.0):
         self.uid = uid
+        self.sensorUid = sensorUid
         self.timeOfReading = timeOfReading
         self.value = value
         

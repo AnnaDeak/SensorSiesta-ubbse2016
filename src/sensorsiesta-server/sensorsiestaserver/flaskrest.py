@@ -115,8 +115,14 @@ class FlaskRestServer(object):
 			Fetch a variable dynamically when GET call comes in.
 			Simply return serialized version
 			'''
+			if flask_request.args:
+				filterArgs = { name : str(value) for name, value in flask_request.args.iteritems() }
+				items = cls.query.filter_by(**filterArgs).all()
+			else:
+				items = cls.query.all()
+			
 			self.serializer.currentUri = url_for(namespace, _external=True)
-			ret = _ok({namespace: cls.query.all()})
+			ret = _ok({namespace: items})
 			self.serializer.currentUri = None
 			return ret
 		
@@ -137,7 +143,13 @@ class FlaskRestServer(object):
 			'''
 			innerNamespace = self.namespaces[cls]['innerNamespaces'][propName]
 			item = cls.query.get(uid)
-			innerItems = getattr(item, propName).all()
+			innerQuery = getattr(item, propName)
+			
+			if flask_request.args:
+				filterArgs = { name : str(value) for name, value in flask_request.args.iteritems() }
+				innerItems = innerQuery.filter_by(**filterArgs).all()
+			else:
+				innerItems = innerQuery.all()
 			
 			self.serializer.currentUri = url_for(innerNamespace['namespace'], _external=True)
 			ret = _ok({innerNamespace['namespace']: innerItems})
