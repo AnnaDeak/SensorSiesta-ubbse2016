@@ -13,7 +13,7 @@ def printHelp():
 -------------------
 
 Arguments:
-    -h             Print current help information
+    -h, --help     Print current help information
     -d, --db       Path to sqlite database file (use :memory: for in-memory db)
     -p, --port     Specify port to listen on (by default, env var PORT or 5000)
     -v, --verbose  Give verbose database query output.
@@ -30,20 +30,20 @@ if __name__ == '__main__':
     
     # parse command-line arguments
     try:
-        opts, args = getopt(argv[1:], "hd:p:v", ["db=", "port=", "verbose"])
+        opts, args = getopt(argv[1:], 'hd:p:v', ['help', 'db=', 'port=', 'verbose'])
     except GetoptError:
         printHelp()
         exit(2)
     
     for opt, arg in opts:
-        if opt == '-h':
+        if opt in ('-h', '--help'):
             printHelp()
             exit()
-        elif opt in ("-s", "--db"):
+        elif opt in ('-s', '--db'):
             dbName = arg
-        elif opt in ("-p", "--port"):
+        elif opt in ('-p', '--port'):
             port = int(arg)
-        elif opt in ("-v", "--verbose"):
+        elif opt in ('-v', '--verbose'):
             verbose = True
     
     
