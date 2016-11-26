@@ -11,8 +11,6 @@ from flask import abort, request as flask_request
 from flask.app import Flask
 from flask.helpers import url_for
 from flask.wrappers import Response
-from sqlalchemy.orm.attributes import QueryableAttribute
-from sqlalchemy.orm.relationships import RelationshipProperty
 
 from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
 from sensorsiestacommon.utils import isPortListening, jsonSerializerWithUri
@@ -27,13 +25,22 @@ class FlaskRestServer(object):
 	Wires REST calls to DAOs.
 	'''
 	
-	def __init__(self, dbUri = 'sqlite:///:memory:', port = 5000, serializer = jsonSerializerWithUri):
+	def __init__(self, dbUri = 'sqlite:///:memory:',
+				       port = 5000,
+				       verbose = False,
+				       serializer = jsonSerializerWithUri):
+		
 		self.flaskApp = Flask(__name__,
 							  static_url_path='',
 							  static_folder=abspath('./static'))
+		
+		print 'Using following sqlite database URI:', dbUri
 		self.flaskApp.config['SQLALCHEMY_DATABASE_URI'] = dbUri
+		
 		self.flaskApp.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-		self.flaskApp.config['SQLALCHEMY_ECHO'] = True
+		
+		if verbose:
+			self.flaskApp.config['SQLALCHEMY_ECHO'] = True
 		
 		@self.flaskApp.route('/')
 		def index():
