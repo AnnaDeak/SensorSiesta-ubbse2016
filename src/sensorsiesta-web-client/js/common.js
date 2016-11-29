@@ -22,6 +22,28 @@ function ajax(uri, method, data) {
     return $.ajax(request);
 }
 
+function ajaxSync(uri, method, data) {
+	console.log('Sending ' + method + ' to ' + uri + ' with data: ' + ko.toJSON(data));
+    var request = {
+        url: uri,
+        type: method,
+        contentType: "application/json",
+        accepts: "application/json",
+        cache: false,
+        dataType: 'json',
+        data: ko.toJSON(data),
+        error: function(handler) {
+        	if (handler.responseJSON) {
+        		alert("Error " + handler.status + ": " + handler.responseJSON.msg);
+        	} else {
+        		alert("Error " + handler.status + ": " + handler.response);
+        	}
+        },
+        async: false
+    };
+    return $.ajax(request);
+}
+
 
 /**
  * extra binding for knockout, to iterate through objects, not just lists.
@@ -87,6 +109,23 @@ ko.bindingHandlers.hidden = {
 	update: function(element, valueAccessor) {
 		var value = ko.utils.unwrapObservable(valueAccessor());
 		ko.bindingHandlers.visible.update(element, function() { return !value; });
+	}
+};
+
+
+/**
+ * Bindings for ifempty, ifnotempty.
+ */
+ko.bindingHandlers.ifempty = {
+	update: function(element, valueAccessor) {
+		var value = ko.utils.unwrapObservable(valueAccessor());
+		ko.bindingHandlers.visible.update(element, function() { return value.length == 0; });
+	}
+};
+ko.bindingHandlers.ifnotempty = {
+	update: function(element, valueAccessor) {
+		var value = ko.utils.unwrapObservable(valueAccessor());
+		ko.bindingHandlers.visible.update(element, function() { return value.length > 0; });
 	}
 };
 
@@ -192,6 +231,19 @@ function addSelectedKeys(obj) {
 	}
 }
 
+
+/**
+ * Index of element in list with given UID.
+ */
+function indexOf(obj, uid) {
+	for (var i = 0; i < obj.length; ++i) {
+		if (obj[i].uid() == uid) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 /**
  * Create observable values for all values in a complex object.
  * Recursively builds them with observable props.
@@ -238,10 +290,27 @@ function observableify(obj, parent, key) {
  * Update elements of complex observable
  */
 function updateComplexObservable(obj, data) {
-	for (var key in data) {
-		obj[key](data[key]);
-		if (obj[key]._initialValue) {
-			obj[key]._initialValue(data[key]);
+	if (data instanceof Array) {
+		for (var i = 0; i < data.length; ++i) {
+			var objIdx = indexOf(obj, data[i].uid);
+			if (objIdx != -1) {
+				updateComplexObservable(obj[objIdx], data[i]);
+			} else {
+				obj.push(observableify(data[i]));
+			}
+		}
+	} else if (data instanceof Object) {
+		for (var key in data) {
+			if (key in obj) {
+				updateComplexObservable(obj[key], data[key]);
+			} else {
+				obj[key] = observableify(data[key]);
+			}
+		}
+	} else {
+		obj(data);
+		if (obj._initialValue) {
+			obj._initialValue(data);
 		}
 	}
 }

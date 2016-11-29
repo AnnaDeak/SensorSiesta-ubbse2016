@@ -116,7 +116,7 @@ class FlaskRestServer(object):
 			Simply return serialized version
 			'''
 			if flask_request.args:
-				filterArgs = { name : str(value) for name, value in flask_request.args.iteritems() }
+				filterArgs = { name : str(value) for name, value in flask_request.args.iteritems() if name != '_' }
 				items = cls.query.filter_by(**filterArgs).all()
 			else:
 				items = cls.query.all()

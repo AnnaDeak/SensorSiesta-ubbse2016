@@ -21,35 +21,82 @@
 		<span class="navbar-brand">Sensor Siesta Example</span>
 	</nav>
 
-	<div id="exampleView" class="container">
-
-		<h2>Current data</h2>
-
-		<table class="table table-sm table-bordered table-hover" id="topmidi">
-			<thead class="thead thead-inverse">
-				<tr>
-					<th>UID</th>
-					<th>Int Member</th>
-					<th>Float Member</th>
-					<th>Date Member</th>
-					<th>String Member</th>
-				</tr>
-			</thead>
-			<tbody data-bind="foreach: ExampleEntitys">
-				<tr>
-					<td data-bind="text: uid"></td>
-					<td data-bind="text: intMember"></td>
-					<td data-bind="text: floatMember"></td>
-					<td data-bind="dateText: dateMember"></td>
-					<td data-bind="text: strMember"></td>
-				</tr>
-			</tbody>
-		</table>
+	<div id="deviceView" class="container-fluid">
+		<div class="row">
+		
+            <div class="col-lg-3 col-md-3 col-sm-8">
+				<h2>Devices</h2>
+		        <ul class="nav nav-sidebar" data-bind="foreach: RPis">
+		            <li data-bind="visible: selected" class="active">
+		                <a href="#" data-bind="text: host, click: $parent.selectRPi"></a>
+		            </li>
+		            <li data-bind="hidden: selected">
+		                <a href="#" data-bind="text: host, click: $parent.selectRPi"></a>
+		            </li>
+		            <ul class="inner-selectable" data-bind="foreach: sensors">
+		                <li data-bind="visible: selected" class="active">
+		                    <a href="#" data-bind="click: $parents[1].selectSensor">Sensor <span data-bind="text: uid"></span></a>
+		                </li>
+		                <li data-bind="hidden: selected">
+		                    <a href="#" data-bind="click: $parents[1].selectSensor">Sensor <span data-bind="text: uid"></span></a>
+		                </li>
+		            </ul>
+		            <br/>
+		        </ul>
+        	</div>
+        	
+        	<div class="col-lg-9 col-md-9 col-sm-18">
+        	
+                <div id="rpiView" data-bind="if: rpiSelected">
+                	<h2>Raspberry Pi</h2>
+                	<div data-bind="with: selectedItem">
+                		<div>UID: <span data-bind="text: uid"></span></div>
+                		<div>Host: <span data-bind="text: host"></span></div>
+                		<div>&nbsp;</div>
+                		
+                		<h3>Sensors</h3>
+                		<div data-bind="ifnotempty: sensors">
+							<ul data-bind="foreach: sensors">
+								<li>
+									<a href="#" data-bind="click: $parents[1].selectSensor">
+										UID: <span data-bind="text: uid"></span>, Type: <span data-bind="text: sensorTypeUid"></span>
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div data-bind="ifempty: sensors">
+							-- no sensors --
+						</div>
+					</div>
+                </div>
+                
+                <div id="sensorView" data-bind="if: sensorSelected">
+                	<h2>Sensor Readings</h2>
+                	<div data-bind="with: selectedItem">
+	                	<table class="table table-sm table-bordered table-hover">
+							<thead class="thead thead-inverse">
+								<tr>
+									<th>Time</th>
+									<th>Value</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach: readings">
+								<tr>
+									<td data-bind="dateText: timeOfReading"></td>
+									<td data-bind="text: value"></td>
+								</tr>
+							</tbody>
+						</table>
+                	</div>
+                </div>
+                
+			</div>                
+        </div>
 	</div>
 
 	<!-- grunted JS files -->
 	<script src="./external.min.js"></script>
 	<script src="./common.js"></script>
-	<script src="./example.js"></script>
+	<script src="./devices.js"></script>
 </body>
 </html>
