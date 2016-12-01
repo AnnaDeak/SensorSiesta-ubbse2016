@@ -75,7 +75,7 @@ Productive entities
 class RPi(Model):
     uid = Column(Integer, primary_key = True)
     host = Column(String, unique = True)
-    sensors = relationship('Sensor', backref='rpi', lazy='dynamic')
+    sensors = relationship('Sensor', backref='rpi', lazy='dynamic', cascade="all, delete-orphan")
     
     def __init__(self, uid = None, host = None):
         self.uid = uid
@@ -102,7 +102,7 @@ class Sensor(Model):
     uid = Column(Integer, primary_key = True)
     rpiUid = Column(Integer, ForeignKey(RPi.uid))
     sensorTypeUid = Column(Integer, ForeignKey(SensorType.uid))
-    readings = relationship('SensorReading', backref='sensor', lazy='dynamic')
+    readings = relationship('SensorReading', backref='sensor', lazy='dynamic', cascade="all, delete-orphan")
     
     def __init__(self, uid = None, rpiUid = None, sensorTypeUid = None):
         self.uid = uid
