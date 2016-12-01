@@ -70,7 +70,7 @@ if __name__ == '__main__':
     
     # if asked to delete
     if clear:
-        rpi = acquireRPi(conn, create = False)
+        rpi = acquireRPi(conn, create = False, sensors = False)
         if rpi is not None:
             print 'Clearing current device'
             conn.request('/RPis/%d' %(rpi.uid), method = 'DELETE')

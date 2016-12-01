@@ -8,8 +8,8 @@ from sys import argv
 from getopt import GetoptError, getopt
 
 from sensorsiestaclient.broadcast import DataBroadcaster
-from sensorsiestaclient.dsp import ExampleDsp
 from sensorsiestacommon.utils import isPortListening
+from time import sleep
 
 
 def printHelp():
@@ -28,7 +28,6 @@ if __name__ == '__main__':
     # default settings
     host = 'localhost'
     port = 5000
-    period = 1.5
     
     # parse command-line arguments
     try:
@@ -51,12 +50,26 @@ if __name__ == '__main__':
     if not isPortListening(host = host, port = port):
         raise Exception('Could not connect to %s:%d. Is there a server running?' %(host, port))
         
-    # build sensor dsp object
-    dsp = ExampleDsp()
-    
     # build and start broadcaster object
-    broadcaster = DataBroadcaster(dsp = dsp,
-                                  serverHost = host,
-                                  serverPort = port,
-                                  period = period)
+    broadcaster = DataBroadcaster(serverHost = host,
+                                  serverPort = port)
+    
+    # check that there are actually sensors assigned
+    if len(broadcaster.rpi.sensors) == 0:
+        print 'No sensors registered. Please register some.'
+        exit(2)
+    
+    # run app indefinitely
     broadcaster.run()
+    
+    try:
+        while True:
+            # sleep until next poll
+            sleep(1)
+    except KeyboardInterrupt:
+        # react to keyboard interrupt
+        pass
+    finally:
+        # make sure teardown happens for graceful exit
+        broadcaster.join()    
+    
