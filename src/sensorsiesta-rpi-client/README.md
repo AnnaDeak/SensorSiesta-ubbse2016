@@ -19,8 +19,21 @@ If `pip` is not available, use:
 sudo apt-get install python-pip
 ~~~
 
-#### 3. Start the client
+#### 3. Register sensors to server
 
 ~~~bash
-python app.py
+python register.py -n <pinNumber> [-i <interval> -s <serverHost> -p <serverPort>]
+~~~
+
+You can remove the current device's registrations using
+
+~~~bash
+python register.py -c [-s <serverHost> -p <serverPort>]
+~~~
+
+
+#### 4. Run the app
+
+~~~bash
+python app.py [-s <serverHost> -p <serverPort>]
 ~~~

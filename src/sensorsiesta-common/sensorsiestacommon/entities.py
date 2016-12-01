@@ -102,12 +102,16 @@ class Sensor(Model):
     uid = Column(Integer, primary_key = True)
     rpiUid = Column(Integer, ForeignKey(RPi.uid))
     sensorTypeUid = Column(Integer, ForeignKey(SensorType.uid))
+    pinNumber = Column(Integer)
+    pollInterval = Column(Float)
     readings = relationship('SensorReading', backref='sensor', lazy='dynamic', cascade="all, delete-orphan")
     
-    def __init__(self, uid = None, rpiUid = None, sensorTypeUid = None):
+    def __init__(self, uid = None, rpiUid = None, sensorTypeUid = None, pinNumber = -1, pollInterval = 2.0):
         self.uid = uid
         self.rpiUid = rpiUid
         self.sensorTypeUid = sensorTypeUid
+        self.pinNumber = pinNumber
+        self.pollInterval = pollInterval
 
 
 
