@@ -70,8 +70,14 @@
 					</div>
                 </div>
                 
-                <div id="sensorView" data-bind="if: sensorSelected">
+                <div id="sensorHeaderView" data-bind="visible: sensorSelected">
                 	<h2>Sensor Readings</h2>
+                	<div>&nbsp;</div>
+					<div id="sensorData" style="height: 200px; width: 100%;"></div>
+                	<div>&nbsp;</div>
+                </div>
+                
+                <div id="sensorView" data-bind="if: sensorSelected">
                 	<div data-bind="with: selectedItem">
 	                	<table class="table table-sm table-bordered table-hover">
 							<thead class="thead thead-inverse">

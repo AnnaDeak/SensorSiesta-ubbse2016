@@ -11,6 +11,28 @@ function readingURI(sensorUid) {
 
 var deviceViewModel = {};
 
+var sensorChartData = [ {
+	x : new Date(1480192993000),
+	y : 0.75
+}, {
+	x : new Date(1480192995000),
+	y : 0.5
+}, {
+	x : new Date(1480192997000),
+	y : 0.8
+}, {
+	x : new Date(1480192999000),
+	y : 0.9
+} ];
+
+var sensorChart = new CanvasJS.Chart("sensorData", {
+	backgroundColor : "#00000000",
+	data : [ {
+		type : "line",
+		dataPoints : sensorChartData
+	} ]
+});
+
 
 /**
  * Add internal configs before observableifying data.
@@ -68,6 +90,7 @@ function afterObservableify(deviceViewModel) {
 	deviceViewModel.selectRPi = function(rpi) {
 		deviceViewModel.selectItem(rpi, 'rpi');
 	};
+	
 	deviceViewModel.selectSensor = function(sensor) {
 		deviceViewModel.refreshSensor(sensor);
 		deviceViewModel.selectItem(sensor, 'sensor');
@@ -75,7 +98,13 @@ function afterObservableify(deviceViewModel) {
 	
 	deviceViewModel.refreshSensor = function(sensor) {
 		ajax(readingURI(sensor.uid()), 'GET').done(function(readingData) {
+			sensorChartData.length = 0;
+			for (var i = 0; i < readingData['SensorReadings'].length; ++i) {
+				var reading = readingData['SensorReadings'][i];
+				sensorChartData.push({x : new Date(reading.timeOfReading * 1000), y : reading.value});
+			}
 			updateComplexObservable(sensor['readings'], readingData['SensorReadings']);
+			sensorChart.render();
 		});
 	}
 	

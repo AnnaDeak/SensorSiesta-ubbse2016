@@ -5,7 +5,8 @@
 external_js = ["./node_modules/jquery/dist/jquery.min.js",
                "./node_modules/tether/dist/js/tether.min.js",
                "./node_modules/bootstrap/dist/js/bootstrap.min.js",
-               "./node_modules/knockout/build/output/knockout-latest.js"];
+               "./node_modules/knockout/build/output/knockout-latest.js",
+               "./node_modules/canvasjs/dist/jquery.canvasjs.min.js"];
 
 external_css = ["./node_modules/tether/dist/css/tether.min.css",
                 "./node_modules/bootstrap/dist/css/bootstrap.min.css"];
