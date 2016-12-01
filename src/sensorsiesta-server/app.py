@@ -3,9 +3,10 @@ from sys import argv
 from os import getenv
 
 from sensorsiestaserver.flaskrest import FlaskRestServer
+from sensorsiestaserver.entities import SensorReadingEntity, SensorEntity, SensorTypeEntity, RPiEntity
 from sensorsiestacommon.entities import SensorReading, Sensor, SensorType, RPi
 from sensorsiestacommon.utils import jsonSerializerWithUri
-from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
+from sensorsiestaserver.flasksqlalchemy import sqlAlchemyFlask
 
 
 def printHelp():
@@ -54,13 +55,13 @@ if __name__ == '__main__':
                                   serializer = jsonSerializerWithUri)
     
     # wire entities
-    flaskServer.wire(SensorReading)
-    flaskServer.wire(Sensor)
-    flaskServer.wire(SensorType)
-    flaskServer.wire(RPi)
-    flaskServer.wireOneToMany(RPi, Sensor, 'sensors')
-    flaskServer.wireOneToMany(SensorType, Sensor, 'sensors')
-    flaskServer.wireOneToMany(Sensor, SensorReading, 'readings')
+    flaskServer.wire(SensorReadingEntity, icls = SensorReading)
+    flaskServer.wire(SensorEntity, icls = Sensor)
+    flaskServer.wire(SensorTypeEntity, icls = SensorType)
+    flaskServer.wire(RPiEntity, icls = RPi)
+    flaskServer.wireOneToMany(RPiEntity, SensorEntity, 'sensors')
+    flaskServer.wireOneToMany(SensorTypeEntity, SensorEntity, 'sensors')
+    flaskServer.wireOneToMany(SensorEntity, SensorReadingEntity, 'readings')
     
     
     # set up flask-sqlalchemy & create tables

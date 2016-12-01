@@ -7,8 +7,6 @@ from datetime import datetime
 import json
 from pytz import utc
 from socket import socket, AF_INET, SOCK_STREAM
-from sqlalchemy.sql.type_api import TypeDecorator
-from sqlalchemy.sql.sqltypes import DateTime
 
 
 '''
@@ -22,6 +20,7 @@ class JsonSerializer(object):
     
     contentType='application/json'
     currentUri = None
+    currentType = None
     
     
     def toDict(self, obj, preserveClassData = True):
@@ -47,8 +46,12 @@ class JsonSerializer(object):
                 ret[name] = self.toDict(value, preserveClassData)
             # code in class data to json if needed
             if preserveClassData:
-                ret['__moduleName__'] = obj.__module__
-                ret['__className__'] = obj.__class__.__name__
+                if self.currentType:
+                    ret['__moduleName__'] = self.currentType.__module__
+                    ret['__className__'] = self.currentType.__name__
+                else:
+                    ret['__moduleName__'] = obj.__module__
+                    ret['__className__'] = obj.__class__.__name__
         elif isinstance(obj, datetime):
             ret = timeToSeconds(obj)
         else:
@@ -186,17 +189,6 @@ Datetime utilities
 epochDateTime = datetime(1970, 1, 1).replace(tzinfo=utc)
 defaultFormat = '%Y-%m-%d %H:%M:%S.%f'
 
-
-class TimeZoneAwareDateTime(TypeDecorator):
-    '''
-    Results returned as aware datetimes, not naive ones.
-    '''
-
-    impl = DateTime
-
-    def process_result_value(self, value, dialect):
-        return value.replace(tzinfo=utc)
-    
     
 
 def timeToSeconds(givenDateTime):

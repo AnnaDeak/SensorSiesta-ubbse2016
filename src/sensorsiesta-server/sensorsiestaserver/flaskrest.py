@@ -12,8 +12,8 @@ from flask.app import Flask
 from flask.helpers import url_for
 from flask.wrappers import Response
 
-from sensorsiestacommon.flasksqlalchemy import sqlAlchemyFlask
 from sensorsiestacommon.utils import isPortListening, jsonSerializerWithUri
+from sensorsiestaserver.flasksqlalchemy import sqlAlchemyFlask
 
 
 dbsession = sqlAlchemyFlask.session
@@ -51,20 +51,24 @@ class FlaskRestServer(object):
 		self.namespaces = {}
 		
 		
-	def wire(self, cls, namespace = None):
+	def wire(self, cls, icls = None, namespace = None):
 		'''
 		Wire HTTP calls to a given class to a DAO.
 		'''
 		
+		if icls is None:
+			icls = cls
+			
 		# assign default namespace if need be
 		if namespace is None:
-			clsName = cls.__name__
-			namespace = clsName[0] + clsName[1:] + 's'
+			iclsName = icls.__name__
+			namespace = iclsName[0] + iclsName[1:] + 's'
 		
 		namespaceSingle = namespace[:-1]
-		
+			
 		self.namespaces[cls] = {
 			'cls' : cls,
+			'icls' : icls,
 			'namespace' : namespace,
 			'namespaceSingle' : namespaceSingle,
 			'innerNamespaces' : {}
@@ -122,8 +126,10 @@ class FlaskRestServer(object):
 				items = cls.query.all()
 			
 			self.serializer.currentUri = url_for(namespace, _external=True)
+			self.serializer.currentType = icls
 			ret = _ok({namespace: items})
 			self.serializer.currentUri = None
+			self.serializer.currentType = None
 			return ret
 		
 		
@@ -132,8 +138,10 @@ class FlaskRestServer(object):
 			Handle findById.
 			'''
 			self.serializer.currentUri = url_for(namespace + '_findById', uid = uid, _external=True)
+			self.serializer.currentType = icls
 			ret = _ok({namespaceSingle: cls.query.get(uid)})
 			self.serializer.currentUri = None
+			self.serializer.currentType = None
 			return ret
 		
 		
@@ -152,8 +160,10 @@ class FlaskRestServer(object):
 				innerItems = innerQuery.all()
 			
 			self.serializer.currentUri = url_for(innerNamespace['namespace'], _external=True)
+			self.serializer.currentType = innerNamespace['icls']
 			ret = _ok({innerNamespace['namespace']: innerItems})
 			self.serializer.currentUri = None
+			self.serializer.currentType = None
 			return ret
 		
 		
@@ -169,8 +179,10 @@ class FlaskRestServer(object):
 			dbsession.refresh(newItem)
 			
 			self.serializer.currentUri = url_for(namespace + '_findById', uid = newItem.uid, _external=True)
+			self.serializer.currentType = icls
 			ret = _ok({namespaceSingle: newItem})
 			self.serializer.currentUri = None
+			self.serializer.currentType = None
 			return ret
 			
 		
@@ -185,8 +197,10 @@ class FlaskRestServer(object):
 			item = cls.query.get(uid)
 		
 			self.serializer.currentUri = url_for(namespace + '_findById', uid = item.uid, _external=True)
+			self.serializer.currentType = icls
 			ret = _ok({namespaceSingle: item})
 			self.serializer.currentUri = None
+			self.serializer.currentType = None
 			return ret
 			
 			
