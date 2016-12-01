@@ -236,8 +236,8 @@ function addSelectedKeys(obj) {
  * Index of element in list with given UID.
  */
 function indexOf(obj, uid) {
-	for (var i = 0; i < obj.length; ++i) {
-		if (obj[i].uid() == uid) {
+	for (var i = 0; i < obj().length; ++i) {
+		if (obj()[i].uid() == uid) {
 			return i;
 		}
 	}
@@ -294,7 +294,7 @@ function updateComplexObservable(obj, data) {
 		for (var i = 0; i < data.length; ++i) {
 			var objIdx = indexOf(obj, data[i].uid);
 			if (objIdx != -1) {
-				updateComplexObservable(obj[objIdx], data[i]);
+				updateComplexObservable(obj()[objIdx], data[i]);
 			} else {
 				obj.push(observableify(data[i]));
 			}

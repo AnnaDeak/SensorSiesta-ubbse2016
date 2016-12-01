@@ -24,6 +24,7 @@ rem productive dummy data
 curl -i -H "Content-Type: application/json" -X POST -d "{\"host\":\"dummyHost\"}" http://localhost:5000/RPis
 curl -i -H "Content-Type: application/json" -X POST -d "{\"name\":\"dummyType\"}" http://localhost:5000/SensorTypes
 curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorTypeUid\":1, \"rpiUid\":1}" http://localhost:5000/Sensors
-curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"value\":0.5}" http://localhost:5000/SensorReadings
-curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"value\":0.75}" http://localhost:5000/SensorReadings
-curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"value\":0.8}" http://localhost:5000/SensorReadings
+curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"timeOfReading\": 1480192935, \"value\":0.5}" http://localhost:5000/SensorReadings
+curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"timeOfReading\": 1480192995, \"value\":0.75}" http://localhost:5000/SensorReadings
+curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"timeOfReading\": 1480193055, \"value\":0.8}" http://localhost:5000/SensorReadings
+curl -i -H "Content-Type: application/json" -X POST -d "{\"sensorUid\":1, \"timeOfReading\": 1480193115, \"value\":1.0}" http://localhost:5000/SensorReadings

@@ -10,20 +10,8 @@ function readingURI(sensorUid) {
 
 
 var deviceViewModel = {};
+var sensorChartData = [];
 
-var sensorChartData = [ {
-	x : new Date(1480192993000),
-	y : 0.75
-}, {
-	x : new Date(1480192995000),
-	y : 0.5
-}, {
-	x : new Date(1480192997000),
-	y : 0.8
-}, {
-	x : new Date(1480192999000),
-	y : 0.9
-} ];
 
 var sensorChart = new CanvasJS.Chart("sensorData", {
 	backgroundColor : "#00000000",
