@@ -49,11 +49,12 @@ The tag [v0.3](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.3) 
 
 ### 5. Continuous Integration & Delivery
 
-The tag [v0.4](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.4) contains necessary files to set up continuous integration and deployment. The server is run using a Dockerfile [here](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/Dockerfile).
+The tag [v0.4](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.4) contains necessary files to set up continuous integration and deployment.
 
-From the [`src`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src) folder:
+The server is run using a Dockerfile [here](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/Dockerfile). From the [`src`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src) folder:
 
 - Build the Docker image using `sudo docker build -t csabasulyok/sensorsiesta:1.0.0 .`
 - Run it using `sudo docker run -p 5000:5000 --rm -it csabasulyok/sensorsiesta:1.0.0`
 - Deploy to Docker Hub using `sudo docker push csabasulyok/sensorsiesta:1.0.0`
 
+The associated [Travis CI job](https://travis-ci.org/csabasulyok/SensorSiesta-ubbse2016) uses the local [.travis.yml](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/.travis.yml) file to perform the Docker push. 

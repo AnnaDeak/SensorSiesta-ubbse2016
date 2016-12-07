@@ -1,0 +1,18 @@
+# Configuration for Travis CI
+
+# sudo is required for Docker calls
+sudo: required
+
+# mark our language as Python
+language: python
+
+# add docker as dependent service
+services:
+  - docker
+
+# main script
+# for the push to work, the variables below must be set
+script:
+  - docker build -t csabasulyok/sensorsiesta:1.0.0 src
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push csabasulyok/sensorsiesta:1.0.0
