@@ -17,10 +17,13 @@ services:
 # pushes to Heroku registry, app goes live from there
 script:
   # build web files
-  - cd src/sensorsiesta-web-client && npm install && grunt deploy
+  - cd src/sensorsiesta-web-client
+  - npm install
+  - grunt deploy
   # login to Heroku registry
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" registry.heroku.com
   # build Docker image
-  - docker build -t registry.heroku.com/sensorsiesta-ubbse2016/web src
+  - cd ../sensorsiesta-server
+  - docker build -t registry.heroku.com/sensorsiesta-ubbse2016/web .
   # push Docker image to Heroku registry
   #- docker push registry.heroku.com/sensorsiesta-ubbse2016/web
