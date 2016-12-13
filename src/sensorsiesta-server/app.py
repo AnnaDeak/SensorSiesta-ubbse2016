@@ -26,7 +26,7 @@ if __name__ == '__main__':
     
     # default settings
     dbName = 'test.db'
-    port = getenv('PORT', 5000)
+    port = int(getenv('PORT', 5000))
     verbose = False
     
     # parse command-line arguments
