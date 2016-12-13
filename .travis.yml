@@ -6,14 +6,21 @@ sudo: required
 # mark our language as Python
 language: python
 
-# add docker as dependent service
+# add dependent services
 services:
   - docker
+  - npm
+  - grunt
 
 # main script
 # for the push to work, the variables below must be set
 # pushes to Heroku registry, app goes live from there
 script:
+  # build web files
+  - cd src/sensorsiesta-web-client && npm install && grunt deploy
+  # login to Heroku registry
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" registry.heroku.com
+  # build Docker image
   - docker build -t registry.heroku.com/sensorsiesta-ubbse2016/web src
-  - docker push registry.heroku.com/sensorsiesta-ubbse2016/web
+  # push Docker image to Heroku registry
+  #- docker push registry.heroku.com/sensorsiesta-ubbse2016/web
