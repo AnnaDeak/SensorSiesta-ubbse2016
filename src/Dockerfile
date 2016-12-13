@@ -8,11 +8,13 @@ EXPOSE 5000
 
 # Copy sources to virtual machine
 # local folder will become /usr/src/sensorsiesta on Docker image
-COPY . /usr/src/sensorsiesta
+RUN mkdir /usr/src/sensorsiesta
+COPY sensorsiesta-common /usr/src/sensorsiesta/sensorsiesta-common
+COPY sensorsiesta-server /usr/src/sensorsiesta/sensorsiesta-server
 
 # Take care of python requirements
-RUN pip install -r /usr/src/sensorsiesta/requirements.txt
+RUN pip install -r /usr/src/sensorsiesta/sensorsiesta-server/requirements.txt
 
 # Start web backend
-WORKDIR /usr/src/sensorsiesta
+WORKDIR /usr/src/sensorsiesta/sensorsiesta-server
 CMD ["python", "app.py"]
