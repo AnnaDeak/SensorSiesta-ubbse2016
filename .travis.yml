@@ -12,7 +12,8 @@ services:
 
 # main script
 # for the push to work, the variables below must be set
+# pushes to Heroku registry, app goes live from there
 script:
-  - docker build -t csabasulyok/sensorsiesta:1.0.0 src
-  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push csabasulyok/sensorsiesta:1.0.0
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" registry.heroku.com
+  - docker build -t registry.heroku.com/sensorsiesta-ubbse2016/web src
+  - docker push registry.heroku.com/sensorsiesta-ubbse2016/web

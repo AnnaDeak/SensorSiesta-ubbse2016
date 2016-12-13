@@ -51,10 +51,25 @@ The tag [v0.3](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.3) 
 
 The tag [v0.4](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/v0.4) contains necessary files to set up continuous integration and deployment.
 
-The server is run using a Dockerfile [here](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src/Dockerfile). From the [`src`](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/src) folder:
+#### Docker
+
+The server is run using a Dockerfile [here](src/Dockerfile).
+From the [`src`](src) folder:
 
 - Build the Docker image using `sudo docker build -t csabasulyok/sensorsiesta:1.0.0 .`
 - Run it using `sudo docker run -p 5000:5000 --rm -it csabasulyok/sensorsiesta:1.0.0`
 - Deploy to Docker Hub using `sudo docker push csabasulyok/sensorsiesta:1.0.0`
 
-The associated [Travis CI job](https://travis-ci.org/csabasulyok/SensorSiesta-ubbse2016) uses the local [.travis.yml](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/.travis.yml) file to perform the Docker push. 
+#### Travis CI
+
+On every delivery, the continuous integration step is triggered in the form of a [Travis CI job](https://travis-ci.org/csabasulyok/SensorSiesta-ubbse2016).
+This job uses the local [.travis.yml](https://github.com/csabasulyok/SensorSiesta-ubbse2016/tree/master/.travis.yml) file to build and push a Docker image.
+
+#### Heroku
+
+The Docker image created by Travis CI is pushed to the [Heroku registry](https://devcenter.heroku.com/articles/container-registry-and-runtime).
+The associated Heroku app's dashboard can be seen [here](https://dashboard.heroku.com/apps/sensorsiesta-ubbse2016).
+The application is deployed on every commit to gitHub. The latest live version is accessible here:
+
+[`https://sensorsiesta-ubbse2016.herokuapp.com/`](https://sensorsiesta-ubbse2016.herokuapp.com/)
+ 
