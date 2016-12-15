@@ -9,8 +9,6 @@ language: python
 # add dependent services
 services:
   - docker
-  - npm
-  - grunt
 
 # main script
 # for the push to work, the variables below must be set

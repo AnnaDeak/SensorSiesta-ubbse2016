@@ -1,7 +1,7 @@
 # Docker build script for the Sensor Siesta server.
 
-# Start with Python 2.7.9 image
-FROM python:2.7.9
+# Start with Python 2.7 image
+FROM python:2.7.12-alpine
 
 # Expose the port Flask uses (by default 5000)
 EXPOSE 5000
