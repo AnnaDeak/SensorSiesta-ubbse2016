@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Csaba Sulyok <csaba.sulyok@gmail.com>",
-  "license": "Babes-Bolyai University, Cluj-Napoca",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/csabasulyok/SensorSiesta-ubbse2016",
   "dependencies": {
     "bootstrap": "4.0.0-alpha.4",
     "canvasjs": "1.8.1",
